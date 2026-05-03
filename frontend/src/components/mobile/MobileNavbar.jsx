@@ -21,6 +21,9 @@ const MobileNavbar = ({ onMenuClick }) => {
   } = useNotificationStore();
 
   const notifRef = useRef(null);
+  const [supportMessage, setSupportMessage] = useState(null);
+  const [warningMessage, setWarningMessage] = useState(null);
+  const [appointmentMessage, setAppointmentMessage] = useState(null);
 
   useEffect(() => {
     if (user?.id) {
@@ -55,7 +58,15 @@ const MobileNavbar = ({ onMenuClick }) => {
   const handleNotifClick = (n) => {
     markAsRead(n.id);
     closeDropdown();
-    if (n.link) {
+    
+    // Support messages from admin: show full message modal
+    if (n.type === 'CHAT' && n.link && n.link === '/user/appointments') {
+      setSupportMessage(n);
+    } else if (n.type === 'WARNING') {
+      setWarningMessage(n);
+    } else if (n.type === 'APPOINTMENT') {
+      setAppointmentMessage(n);
+    } else if (n.link) {
       navigate(n.link);
     }
   };
@@ -181,6 +192,63 @@ const MobileNavbar = ({ onMenuClick }) => {
                 );
               })
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Support Message Modal */}
+      {supportMessage && (
+        <div onClick={() => setSupportMessage(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)', padding: '1rem' }}>
+          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: '24px', width: '100%', maxWidth: '440px', padding: '2rem 1.5rem', boxShadow: '0 25px 60px rgba(0,0,0,0.2)', textAlign: 'center', position: 'relative' }}>
+            <button onClick={() => setSupportMessage(null)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}><X size={20} /></button>
+            <div style={{ backgroundColor: '#81D4FA', width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem auto' }}>
+              <MessageCircle size={28} color="#FFF" />
+            </div>
+            <h2 style={{ margin: '0 0 0.75rem 0', fontSize: '1.2rem', fontWeight: '800', color: '#111827' }}>{supportMessage.title}</h2>
+            <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.9rem', color: '#374151', fontWeight: '500', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{supportMessage.message}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              <button onClick={() => { setSupportMessage(null); navigate('/user/appointments'); }} style={{ backgroundColor: '#FF8A65', color: '#FFF', border: 'none', borderRadius: '12px', padding: '0.85rem', fontWeight: '800', fontSize: '0.95rem', cursor: 'pointer' }}>💬 Talk to a counselor</button>
+              <button onClick={() => { setSupportMessage(null); navigate('/user/appointments'); }} style={{ backgroundColor: '#FCE4EC', color: '#F06292', border: 'none', borderRadius: '12px', padding: '0.85rem', fontWeight: '800', fontSize: '0.95rem', cursor: 'pointer' }}>💡 Listen-only</button>
+              <button onClick={() => setSupportMessage(null)} style={{ border: '2px solid #E5E7EB', backgroundColor: 'transparent', borderRadius: '12px', padding: '0.85rem', fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer', color: '#374151' }}>I'm not in the mood</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Warning Message Modal */}
+      {warningMessage && (
+        <div onClick={() => setWarningMessage(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)', padding: '1rem' }}>
+          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: '24px', width: '100%', maxWidth: '440px', padding: '2rem 1.5rem', boxShadow: '0 25px 60px rgba(0,0,0,0.2)', textAlign: 'center', position: 'relative' }}>
+            <button onClick={() => setWarningMessage(null)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}><X size={20} /></button>
+            <div style={{ backgroundColor: '#FFEBEE', width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem auto' }}>
+              <Bell size={28} color="#EF5350" />
+            </div>
+            <h2 style={{ margin: '0 0 0.75rem 0', fontSize: '1.2rem', fontWeight: '800', color: '#111827' }}>{warningMessage.title}</h2>
+            <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.9rem', color: '#374151', fontWeight: '500', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{warningMessage.message}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              <button onClick={() => setWarningMessage(null)} style={{ backgroundColor: '#EF5350', color: '#FFF', border: 'none', borderRadius: '12px', padding: '0.85rem', fontWeight: '800', fontSize: '0.95rem', cursor: 'pointer' }}>I Understand</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Appointment Message Modal */}
+      {appointmentMessage && (
+        <div onClick={() => setAppointmentMessage(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)', padding: '1rem' }}>
+          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: '24px', width: '100%', maxWidth: '440px', padding: '2rem 1.5rem', boxShadow: '0 25px 60px rgba(0,0,0,0.2)', textAlign: 'center', position: 'relative' }}>
+            <button onClick={() => setAppointmentMessage(null)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}><X size={20} /></button>
+            <div style={{ backgroundColor: '#E0F2F1', width: '56px', height: '56px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem auto' }}>
+              <Calendar size={28} color="#064E3B" />
+            </div>
+            <h2 style={{ margin: '0 0 0.75rem 0', fontSize: '1.2rem', fontWeight: '800', color: '#111827' }}>{appointmentMessage.title}</h2>
+            <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.9rem', color: '#374151', fontWeight: '500', lineHeight: 1.7, whiteSpace: 'pre-wrap', textAlign: 'left' }}>{appointmentMessage.message}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              {appointmentMessage.link && appointmentMessage.link.includes('action=startChat') ? (
+                <button onClick={() => { setAppointmentMessage(null); navigate(appointmentMessage.link); }} style={{ backgroundColor: '#064E3B', color: '#FFF', border: 'none', borderRadius: '12px', padding: '0.85rem', fontWeight: '800', fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>Start Chat Now <MessageCircle size={18} /></button>
+              ) : (
+                <button onClick={() => { setAppointmentMessage(null); navigate(appointmentMessage.link || '/user/appointments'); }} style={{ backgroundColor: '#064E3B', color: '#FFF', border: 'none', borderRadius: '12px', padding: '0.85rem', fontWeight: '800', fontSize: '0.95rem', cursor: 'pointer' }}>Go to Appointments</button>
+              )}
+            </div>
           </div>
         </div>
       )}

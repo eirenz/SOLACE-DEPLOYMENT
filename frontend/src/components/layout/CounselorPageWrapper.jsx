@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import CounselorSidebar from './CounselorSidebar';
 import Avatar from '../common/Avatar';
-import { Bell, MessageCircle, Calendar, Smile } from 'lucide-react';
+import { Bell, MessageCircle, Calendar, Smile, X } from 'lucide-react';
 import useAuthStore from '../../store/useAuthStore';
 import useNotificationStore from '../../store/useNotificationStore';
 
@@ -11,6 +11,9 @@ const CounselorPageWrapper = () => {
   const user = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.token);
   const notifRef = useRef(null);
+  const [supportMessage, setSupportMessage] = useState(null);
+  const [warningMessage, setWarningMessage] = useState(null);
+  const [appointmentMessage, setAppointmentMessage] = useState(null);
   const {
     notifications,
     unreadCount,
@@ -39,7 +42,8 @@ const CounselorPageWrapper = () => {
   }, [user?.id]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#F4F7F8', fontFamily: 'var(--font-body)', overflow: 'hidden' }}>
+    <>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#F4F7F8', fontFamily: 'var(--font-body)', overflow: 'hidden' }}>
       {/* Top Header */}
       <header style={{
         height: '80px',
@@ -107,7 +111,19 @@ const CounselorPageWrapper = () => {
                       return (
                         <div
                           key={n.id}
-                          onClick={() => { markAsRead(n.id); closeDropdown(); if (n.link) navigate(n.link); }}
+                          onClick={() => {
+                          markAsRead(n.id);
+                          closeDropdown();
+                          if (n.type === 'CHAT' && n.link && n.link === '/user/appointments') {
+                            setSupportMessage(n);
+                          } else if (n.type === 'WARNING') {
+                            setWarningMessage(n);
+                          } else if (n.type === 'APPOINTMENT') {
+                            setAppointmentMessage(n);
+                          } else if (n.link) {
+                            navigate(n.link);
+                          }
+                        }}
                           style={{
                             display: 'flex', alignItems: 'flex-start', gap: '0.85rem',
                             padding: '0.85rem 1.25rem', cursor: 'pointer',
@@ -166,6 +182,55 @@ const CounselorPageWrapper = () => {
         </main>
       </div>
     </div>
+
+    {/* Support Message Modal */}
+    {supportMessage && (
+      <div onClick={() => setSupportMessage(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+        <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: '32px', width: '100%', maxWidth: '440px', padding: '3rem 2.5rem', boxShadow: '0 25px 60px rgba(0,0,0,0.2)', textAlign: 'center', position: 'relative' }}>
+          <button onClick={() => setSupportMessage(null)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}><X size={20} /></button>
+          <div style={{ backgroundColor: '#81D4FA', width: '64px', height: '64px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+            <MessageCircle size={32} color="#FFF" />
+          </div>
+          <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.4rem', fontWeight: '800', color: '#111827' }}>{supportMessage.title}</h2>
+          <p style={{ margin: '0 0 2rem 0', fontSize: '0.95rem', color: '#374151', fontWeight: '500', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{supportMessage.message}</p>
+          <button onClick={() => setSupportMessage(null)} style={{ backgroundColor: '#52979B', color: '#FFF', border: 'none', borderRadius: '12px', padding: '0.9rem 2rem', fontWeight: '800', fontSize: '1rem', cursor: 'pointer' }}>Dismiss</button>
+        </div>
+      </div>
+    )}
+
+    {/* Warning Message Modal */}
+    {warningMessage && (
+      <div onClick={() => setWarningMessage(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+        <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: '32px', width: '100%', maxWidth: '440px', padding: '3rem 2.5rem', boxShadow: '0 25px 60px rgba(0,0,0,0.2)', textAlign: 'center', position: 'relative' }}>
+          <button onClick={() => setWarningMessage(null)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}><X size={20} /></button>
+          <div style={{ backgroundColor: '#FFEBEE', width: '64px', height: '64px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+            <Bell size={32} color="#EF5350" />
+          </div>
+          <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.4rem', fontWeight: '800', color: '#111827' }}>{warningMessage.title}</h2>
+          <p style={{ margin: '0 0 2rem 0', fontSize: '0.95rem', color: '#374151', fontWeight: '500', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{warningMessage.message}</p>
+          <button onClick={() => setWarningMessage(null)} style={{ backgroundColor: '#EF5350', color: '#FFF', border: 'none', borderRadius: '12px', padding: '0.9rem 2rem', fontWeight: '800', fontSize: '1rem', cursor: 'pointer' }}>I Understand</button>
+        </div>
+      </div>
+    )}
+
+    {/* Appointment Message Modal */}
+    {appointmentMessage && (
+      <div onClick={() => setAppointmentMessage(null)} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+        <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: '32px', width: '100%', maxWidth: '440px', padding: '3rem 2.5rem', boxShadow: '0 25px 60px rgba(0,0,0,0.2)', textAlign: 'center', position: 'relative' }}>
+          <button onClick={() => setAppointmentMessage(null)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}><X size={20} /></button>
+          <div style={{ backgroundColor: '#E0F2F1', width: '64px', height: '64px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+            <Calendar size={32} color="#064E3B" />
+          </div>
+          <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.4rem', fontWeight: '800', color: '#111827' }}>{appointmentMessage.title}</h2>
+          <p style={{ margin: '0 0 2rem 0', fontSize: '0.95rem', color: '#374151', fontWeight: '500', lineHeight: 1.7, whiteSpace: 'pre-wrap', textAlign: 'left' }}>{appointmentMessage.message}</p>
+          {appointmentMessage.link && appointmentMessage.link.includes('action=startChat') ? (
+            <button onClick={() => { setAppointmentMessage(null); navigate(appointmentMessage.link); }} style={{ backgroundColor: '#064E3B', color: '#FFF', border: 'none', borderRadius: '12px', padding: '0.9rem 2rem', fontWeight: '800', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%' }}>Start Chat Now <MessageCircle size={18} /></button>
+          ) : (
+            <button onClick={() => { setAppointmentMessage(null); navigate(appointmentMessage.link || '/counselor/appointments'); }} style={{ backgroundColor: '#064E3B', color: '#FFF', border: 'none', borderRadius: '12px', padding: '0.9rem 2rem', fontWeight: '800', fontSize: '1rem', cursor: 'pointer' }}>Go to Appointments</button>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 

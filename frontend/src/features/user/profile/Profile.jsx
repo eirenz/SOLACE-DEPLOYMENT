@@ -197,7 +197,7 @@ const Profile = () => {
                 onClick={() => setActiveView(item.id)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: isPhone ? '0.6rem' : '1.2rem',
-                  padding: isPhone ? '0.7rem 1rem' : '1.1rem 1.5rem', borderRadius: '18px', border: 'none',
+                  padding: isPhone ? '0.7rem 1rem' : '1.1rem 1.5rem', borderRadius: '18px',
                   backgroundColor: activeView === item.id ? '#FFFFFF' : 'transparent',
                   color: activeView === item.id ? '#00BCD4' : '#666666',
                   fontWeight: activeView === item.id ? '850' : '600',

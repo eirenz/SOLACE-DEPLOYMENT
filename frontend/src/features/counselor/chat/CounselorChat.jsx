@@ -261,7 +261,7 @@ const CounselorChat = () => {
           flexDirection: 'column', 
           backgroundColor: '#FFFFFF', 
           minHeight: 0, 
-          height: isMobile ? '100%' : undefined,
+          height: (isMobile && !activeChat) ? '100%' : undefined,
           ...(isMobile && activeChat ? {
             position: 'fixed',
             top: '64px', /* Below mobile header */

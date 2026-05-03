@@ -565,7 +565,7 @@ const Appointments = () => {
 
   const renderChatActive = () => (
     <div style={{ 
-      display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.3s ease-out', minHeight: 0,
+      display: 'flex', flexDirection: 'column', height: isPhone ? undefined : '100%', animation: 'fadeIn 0.3s ease-out', minHeight: 0,
       ...(isPhone ? {
         position: 'fixed',
         top: '64px', /* Below mobile header */

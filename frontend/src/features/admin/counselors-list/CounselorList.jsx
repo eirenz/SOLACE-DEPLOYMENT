@@ -317,7 +317,6 @@ const CounselorList = () => {
                 <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Counselor</th>
                 <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Email</th>
                 <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Status</th>
-                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Rating</th>
                 <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Actions</th>
               </tr>
             </thead>
@@ -335,7 +334,6 @@ const CounselorList = () => {
                       ...getStatusStyle(counselor.status === 'ACTIVE' ? 'Active' : 'Inactive')
                     }}>{counselor.status}</span>
                   </td>
-                  <td style={{ padding: '1.25rem 1.5rem', color: '#555', fontWeight: '500' }}>4.8 / 5.0</td>
                   <td style={{ padding: '1.25rem 1.5rem' }}>
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
                       <button onClick={() => openDelete(counselor)} style={{ background: 'none', border: '2px solid #000', padding: '0.5rem', borderRadius: '10px', cursor: 'pointer', color: '#EF5350', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={20} /></button>

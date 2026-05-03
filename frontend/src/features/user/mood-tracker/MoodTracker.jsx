@@ -213,6 +213,7 @@ const MoodTracker = () => {
                 }}
                 onMouseEnter={() => setHoveredWeek(i)}
                 onMouseLeave={() => setHoveredWeek(null)}
+                onClick={() => setHoveredWeek(hoveredWeek === i ? null : i)}
               >
                 <div style={{ position: 'relative', width: isMobile ? '40px' : '60px', height: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
                   {/* Outer Bar (Light) */}
@@ -222,8 +223,8 @@ const MoodTracker = () => {
                 </div>
                 <span style={{ marginTop: '1rem', fontSize: '0.75rem', fontWeight: '800', color: '#9CA3AF' }}>WK {i + 1}</span>
 
-                {/* Tooltip (Simple for Mobile) */}
-                {hoveredWeek === i && !isMobile && (
+                {/* Tooltip */}
+                {hoveredWeek === i && (
                   <div style={{
                     position: 'absolute',
                     bottom: '100%',
@@ -231,13 +232,14 @@ const MoodTracker = () => {
                     transform: 'translateX(-50%)',
                     backgroundColor: '#1A202C',
                     color: '#FFF',
-                    padding: '12px',
+                    padding: isMobile ? '8px' : '12px',
                     borderRadius: '12px',
-                    fontSize: '0.75rem',
+                    fontSize: isMobile ? '0.65rem' : '0.75rem',
                     zIndex: 10,
-                    width: '180px',
+                    width: isMobile ? '130px' : '180px',
                     marginBottom: '10px',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                    pointerEvents: 'none' /* prevent tooltip from blocking clicks */
                   }}>
                     <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <div style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#B2DFDB' }} />

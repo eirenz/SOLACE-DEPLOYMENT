@@ -29,18 +29,25 @@ const formatDate = (dateStr) => {
 
 // ─── Send Support Message Modal ────────────────────────────────────────────────
 
-const MessageModal = ({ isOpen, user, highPriorityUsers, onClose }) => {
+const MessageModal = ({ isOpen, user, allUsers, onClose }) => {
   const [recipientType, setRecipientType] = useState('individual'); // 'individual' | 'all'
   const [sending, setSending] = useState(false);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [sent, setSent] = useState(false);
 
+  // Derive dynamic group based on user mood
+  const isHappy = user?.latestMood === 'HAPPY';
+  const isNeutral = user?.latestMood === 'NEUTRAL';
+  const groupLabel = isHappy ? 'All Normal Users' : isNeutral ? 'All Moderate Users' : 'All High Priority Users';
+  const targetGroupList = isHappy ? (allUsers?.normal || []) : isNeutral ? (allUsers?.moderate || []) : (allUsers?.high_priority || []);
+
   useEffect(() => {
     if (!isOpen) return;
     setRecipientType('individual');
     
-    const targetMood = recipientType === 'all' ? 'STRESSED' : (user?.latestMood || 'STRESSED');
+    // Preset always matches the selected user's group
+    const targetMood = user?.latestMood || 'STRESSED';
     
     if (targetMood === 'HAPPY') {
       setTitle('Keep Up the Great Energy!');
@@ -59,8 +66,8 @@ const MessageModal = ({ isOpen, user, highPriorityUsers, onClose }) => {
   const handleSend = async () => {
     if (!title.trim() || !message.trim()) return;
     if (recipientType === 'individual' && !user?.id) return;
-    if (recipientType === 'all' && (!highPriorityUsers || highPriorityUsers.length === 0)) {
-      alert("No high priority users available.");
+    if (recipientType === 'all' && (!targetGroupList || targetGroupList.length === 0)) {
+      alert(`No users available in ${groupLabel}.`);
       return;
     }
     
@@ -69,7 +76,7 @@ const MessageModal = ({ isOpen, user, highPriorityUsers, onClose }) => {
       if (recipientType === 'individual') {
         await sendSupportMessage(user.id, title, message);
       } else {
-        await Promise.all(highPriorityUsers.map(u => sendSupportMessage(u.id, title, message)));
+        await Promise.all(targetGroupList.map(u => sendSupportMessage(u.id, title, message)));
       }
       setSent(true);
       setTimeout(() => { setSent(false); onClose(); }, 1500);
@@ -86,7 +93,7 @@ const MessageModal = ({ isOpen, user, highPriorityUsers, onClose }) => {
       <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', width: '95%', maxWidth: '1000px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <div style={{ backgroundColor: '#64A19D', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#FFF' }}>
           <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700' }}>
-            {recipientType === 'individual' ? `Send Support Message to ${user?.fullName}` : 'Send to All High Priority Users'}
+            {recipientType === 'individual' ? `Send Support Message to ${user?.fullName}` : `Send to ${groupLabel}`}
           </h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#FFF', cursor: 'pointer' }}><X size={24} /></button>
         </div>
@@ -107,7 +114,7 @@ const MessageModal = ({ isOpen, user, highPriorityUsers, onClose }) => {
                   <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: recipientType === 'all' ? '2px solid #64A19D' : '2px solid #8E9DA1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {recipientType === 'all' && <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#64A19D' }} />}
                   </div>
-                  <span style={{ flex: 1, fontSize: '0.9rem', fontWeight: '700', color: '#1A1A2E' }}>All High Priority Users</span>
+                  <span style={{ flex: 1, fontSize: '0.9rem', fontWeight: '700', color: '#1A1A2E' }}>{groupLabel}</span>
                 </div>
               </div>
             </section>
@@ -626,7 +633,7 @@ const AnalysisReports = () => {
         </>
       )}
 
-      <MessageModal isOpen={modalType === 'message'} user={selectedUser} highPriorityUsers={users.high_priority || []} onClose={() => setModalType(null)} />
+      <MessageModal isOpen={modalType === 'message'} user={selectedUser} allUsers={users || {}} onClose={() => setModalType(null)} />
       <MoodHistoryModal isOpen={modalType === 'calendar'} user={selectedUser} onClose={() => setModalType(null)} />
     </div>
   );

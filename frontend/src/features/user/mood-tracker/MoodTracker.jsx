@@ -331,9 +331,9 @@ const MoodTracker = () => {
         </div>
 
         {/* Habit Exploration Modal */}
-        {isHabitModalOpen && growthInsight?.task && (
+        {isHabitModalOpen && (
           <HabitExplorationModal 
-            habit={growthInsight.task}
+            habit={growthInsight?.task || null}
             onClose={() => setIsHabitModalOpen(false)}
             checkins={rawCheckins}
             isMobile={isMobile}
@@ -348,94 +348,212 @@ const MoodTracker = () => {
 };
 
 // --- Subcomponent: Habit Exploration Modal ---
-const HabitExplorationModal = ({ habit, onClose, checkins, isMobile }) => {
-  const recentWins = checkins
-    .filter(c => c.tasks.some(t => t.toLowerCase() === habit.toLowerCase()) && (c.mood === 'HAPPY' || c.mood === 'NEUTRAL'))
-    .slice(0, 3);
+const Plus = ({ size, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+);
 
-  const habitTips = {
-    'morning yoga': {
-      why: "Yoga reduces cortisol levels and promotes endorphins, leading to improved mood regulation.",
-      tips: ["Try a quick 10-minute flow.", "Focus on your breathing.", "Keep your mat visible."]
+const HabitExplorationModal = ({ habit, onClose, checkins, isMobile }) => {
+  // Determine the user's dominant mood from all check-ins
+  const getDominantMood = () => {
+    if (!checkins || checkins.length === 0) return null;
+    const counts = {};
+    checkins.forEach(c => { counts[c.mood] = (counts[c.mood] || 0) + 1; });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+  };
+
+  const dominantMood = getDominantMood();
+
+  // Mood-based curated suggestions
+  const moodSuggestions = {
+    HAPPY: {
+      emoji: '😊',
+      title: 'Keep the Momentum Going!',
+      summary: "You've been mostly happy — that's wonderful. Here are ways to sustain and deepen your well-being.",
+      habits: [
+        { name: 'Gratitude Journaling', desc: 'Write down 3 things you\'re grateful for each morning. This rewires your brain to focus on the positive.', icon: '📝' },
+        { name: 'Share Your Joy', desc: 'Text or call someone to share a positive moment. Social connection amplifies happiness by up to 2x.', icon: '💬' },
+        { name: 'Move Your Body', desc: 'Even a 15-minute walk releases endorphins. Pair it with music or a podcast you love.', icon: '🏃' },
+      ]
     },
-    'meditation': {
-      why: "Meditation strengthens the prefrontal cortex, enhancing emotional regulation and resilience.",
-      tips: ["Start with guided sessions.", "Just notice your thoughts.", "Try the same time daily."]
+    NEUTRAL: {
+      emoji: '😐',
+      title: 'Small Shifts, Big Impact',
+      summary: "A neutral mood is a stable foundation. These micro-habits can gently shift your baseline upward.",
+      habits: [
+        { name: 'Mindful Morning', desc: 'Before reaching for your phone, take 5 deep breaths. This activates your parasympathetic nervous system.', icon: '🧘' },
+        { name: 'Creative Outlet', desc: 'Spend 10 minutes drawing, writing, or playing music. Creative expression reduces cortisol levels.', icon: '🎨' },
+        { name: 'Nature Break', desc: 'Step outside for 5 minutes between tasks. Natural light boosts serotonin production.', icon: '🌿' },
+      ]
     },
-    'reading': {
-      why: "Deep reading can trigger 'cognitive empathy' and act as a mental anchor.",
-      tips: ["Read what truly interests you.", "Limit distractions.", "Carry your book with you."]
+    STRESSED: {
+      emoji: '😫',
+      title: 'Your Stress-Relief Toolkit',
+      summary: "Stress has been showing up frequently. These evidence-based habits can help you regain calm.",
+      habits: [
+        { name: 'Box Breathing', desc: 'Inhale 4s → Hold 4s → Exhale 4s → Hold 4s. Repeat 4 times. Used by Navy SEALs to manage stress.', icon: '🫁' },
+        { name: 'Brain Dump', desc: 'Set a 5-minute timer and write everything on your mind. Externalizing worries reduces their intensity by 43%.', icon: '🧠' },
+        { name: 'Progressive Relaxation', desc: 'Tense each muscle group for 5 seconds, then release. Start from your toes and work upward.', icon: '💆' },
+      ]
     },
-    'healthy breakfast': {
-      why: "A balanced start stabilizes blood sugar, preventing irritability and providing energy.",
-      tips: ["Prep ingredients overnight.", "Mix protein and fiber.", "Stay hydrated."]
+    SAD: {
+      emoji: '😢',
+      title: 'Gentle Steps Forward',
+      summary: "Sadness has been present lately, and that's okay. These small, compassionate actions can help.",
+      habits: [
+        { name: 'Reach Out', desc: 'Send one message to a friend or family member today. Connection is the strongest antidote to sadness.', icon: '🤝' },
+        { name: 'Sunlight Exposure', desc: 'Get 10-15 minutes of morning sunlight. It regulates melatonin and lifts mood naturally.', icon: '☀️' },
+        { name: 'Talk to a Counselor', desc: 'You don\'t have to carry this alone. Book a session — even one conversation can make a real difference.', icon: '💚' },
+      ]
+    },
+    ANGRY: {
+      emoji: '😤',
+      title: 'Channel Your Energy',
+      summary: "Frustration has been frequent. These techniques help you process and redirect that energy constructively.",
+      habits: [
+        { name: 'Physical Release', desc: 'Do 20 jumping jacks or push-ups. Intense exercise metabolizes stress hormones like adrenaline.', icon: '💪' },
+        { name: 'The 5-5-5 Rule', desc: 'Ask yourself: Will this matter in 5 minutes? 5 hours? 5 days? Perspective reduces emotional intensity.', icon: '🔍' },
+        { name: 'Cold Water Reset', desc: 'Splash cold water on your face or hold ice cubes. This triggers the dive reflex and instantly calms your nervous system.', icon: '🧊' },
+      ]
     }
   };
 
-  const defaultTips = {
-    why: "Consistent daily habits create a predictable foundation for your mental health.",
-    tips: ["Small steps lead to big changes.", "Be kind if you miss a day.", "Track how you feel after success."]
-  };
+  // If we have a specific habit from growth insights, show the original deep-dive
+  if (habit) {
+    const habitTips = {
+      'morning yoga': {
+        why: "Yoga reduces cortisol levels and promotes endorphins, leading to improved mood regulation.",
+        tips: ["Try a quick 10-minute flow.", "Focus on your breathing.", "Keep your mat visible."]
+      },
+      'meditation': {
+        why: "Meditation strengthens the prefrontal cortex, enhancing emotional regulation and resilience.",
+        tips: ["Start with guided sessions.", "Just notice your thoughts.", "Try the same time daily."]
+      },
+      'reading': {
+        why: "Deep reading can trigger 'cognitive empathy' and act as a mental anchor.",
+        tips: ["Read what truly interests you.", "Limit distractions.", "Carry your book with you."]
+      },
+      'healthy breakfast': {
+        why: "A balanced start stabilizes blood sugar, preventing irritability and providing energy.",
+        tips: ["Prep ingredients overnight.", "Mix protein and fiber.", "Stay hydrated."]
+      }
+    };
 
-  const info = habitTips[habit.toLowerCase()] || defaultTips;
+    const defaultTips = {
+      why: "Consistent daily habits create a predictable foundation for your mental health.",
+      tips: ["Small steps lead to big changes.", "Be kind if you miss a day.", "Track how you feel after success."]
+    };
 
-  const getSubEmoji = (mood) => {
-    const emojis = { 'HAPPY': '😊', 'NEUTRAL': '😐', 'STRESSED': '😫', 'SAD': '😢', 'ANGRY': '😤' };
-    return emojis[mood] || '😶';
-  };
+    const info = habitTips[habit.toLowerCase()] || defaultTips;
+    const recentWins = checkins
+      .filter(c => c.tasks.some(t => t.toLowerCase() === habit.toLowerCase()) && (c.mood === 'HAPPY' || c.mood === 'NEUTRAL'))
+      .slice(0, 3);
+
+    const getSubEmoji = (mood) => {
+      const emojis = { 'HAPPY': '😊', 'NEUTRAL': '😐', 'STRESSED': '😫', 'SAD': '😢', 'ANGRY': '😤' };
+      return emojis[mood] || '😶';
+    };
+
+    return (
+      <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }}>
+        <div style={{ 
+          backgroundColor: '#FFFFFF', width: '100%', maxWidth: '550px', 
+          borderRadius: isMobile ? '32px 32px 0 0' : '32px', 
+          padding: isMobile ? '2rem 1.5rem 3rem 1.5rem' : '2.5rem', 
+          boxShadow: '0 -10px 40px rgba(0,0,0,0.2)', position: 'relative',
+          animation: isMobile ? 'm-slide-up 0.4s ease-out' : 'none'
+        }}>
+          <button onClick={onClose} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#f3f4f3', border: 'none', color: '#111827', cursor: 'pointer', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Plus size={20} style={{ transform: 'rotate(45deg)' }} />
+          </button>
+          <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#2d6465', letterSpacing: '0.1em', textTransform: 'uppercase' }}>DEEP DIVE</span>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#111827', margin: '0.25rem 0 1.5rem 0' }}>{habit}</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <section>
+              <h3 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <TrendingUp size={16} color="#2d6465" /> WHY IT WORKS
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#404848', lineHeight: '1.6', margin: 0 }}>{info.why}</p>
+            </section>
+            <section>
+              <h3 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <CalendarIcon size={16} color="#2d6465" /> YOUR SUCCESS STORY
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {recentWins.length > 0 ? recentWins.map((win, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f3f4f3', padding: '0.5rem 1rem', borderRadius: '12px' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#111827' }}>
+                      {new Date(win.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                    <span style={{ fontSize: '1rem' }}>{getSubEmoji(win.mood)}</span>
+                  </div>
+                )) : (
+                  <p style={{ fontSize: '0.8rem', color: '#9CA3AF', fontStyle: 'italic' }}>Keep practicing to see results!</p>
+                )}
+              </div>
+            </section>
+            <button onClick={onClose} style={{ marginTop: '0.5rem', backgroundColor: '#2d6465', color: '#FFFFFF', border: 'none', padding: '1rem', borderRadius: '16px', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer' }}>
+              I'm Committing to This
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mood-based suggestions mode (no specific habit)
+  const suggestions = moodSuggestions[dominantMood] || moodSuggestions.NEUTRAL;
 
   return (
     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center' }}>
       <div style={{ 
-        backgroundColor: '#FFFFFF', 
-        width: '100%', 
-        maxWidth: '550px', 
+        backgroundColor: '#FFFFFF', width: '100%', maxWidth: '550px', 
         borderRadius: isMobile ? '32px 32px 0 0' : '32px', 
         padding: isMobile ? '2rem 1.5rem 3rem 1.5rem' : '2.5rem', 
-        boxShadow: '0 -10px 40px rgba(0,0,0,0.2)', 
-        position: 'relative',
+        boxShadow: '0 -10px 40px rgba(0,0,0,0.2)', position: 'relative',
+        maxHeight: isMobile ? '85vh' : '90vh', overflowY: 'auto',
         animation: isMobile ? 'm-slide-up 0.4s ease-out' : 'none'
       }}>
-        <button onClick={onClose} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#f3f4f3', border: 'none', color: '#111827', cursor: 'pointer', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#f3f4f3', border: 'none', color: '#111827', cursor: 'pointer', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
           <Plus size={20} style={{ transform: 'rotate(45deg)' }} />
         </button>
 
-        <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#2d6465', letterSpacing: '0.1em', textTransform: 'uppercase' }}>DEEP DIVE</span>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#111827', margin: '0.25rem 0 1.5rem 0' }}>{habit}</h2>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <section>
-            <h3 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-              <TrendingUp size={16} color="#2d6465" /> WHY IT WORKS
-            </h3>
-            <p style={{ fontSize: '0.85rem', color: '#404848', lineHeight: '1.6', margin: 0 }}>{info.why}</p>
-          </section>
-
-          <section>
-            <h3 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-              <CalendarIcon size={16} color="#2d6465" /> YOUR SUCCESS STORY
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {recentWins.length > 0 ? recentWins.map((win, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f3f4f3', padding: '0.5rem 1rem', borderRadius: '12px' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#111827' }}>
-                    {new Date(win.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </span>
-                  <span style={{ fontSize: '1rem' }}>{getSubEmoji(win.mood)}</span>
-                </div>
-              )) : (
-                <p style={{ fontSize: '0.8rem', color: '#9CA3AF', fontStyle: 'italic' }}>Keep practicing to see results!</p>
-              )}
-            </div>
-          </section>
-
-          <button 
-            onClick={onClose}
-            style={{ marginTop: '0.5rem', backgroundColor: '#2d6465', color: '#FFFFFF', border: 'none', padding: '1rem', borderRadius: '16px', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer' }}
-          >
-            I'm Committing to This
-          </button>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <span style={{ fontSize: '3rem' }}>{suggestions.emoji}</span>
+          <span style={{ fontSize: '0.65rem', fontWeight: '800', color: '#2d6465', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginTop: '0.5rem' }}>PERSONALIZED FOR YOU</span>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#111827', margin: '0.25rem 0 0.5rem 0' }}>{suggestions.title}</h2>
+          <p style={{ fontSize: '0.9rem', color: '#6B7280', lineHeight: 1.6, margin: 0 }}>{suggestions.summary}</p>
         </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {suggestions.habits.map((h, i) => (
+            <div key={i} style={{ 
+              display: 'flex', gap: '1rem', alignItems: 'flex-start',
+              backgroundColor: '#F8FAF9', padding: '1.25rem', borderRadius: '20px',
+              border: '1px solid #E5E7EB'
+            }}>
+              <span style={{ fontSize: '1.75rem', flexShrink: 0 }}>{h.icon}</span>
+              <div>
+                <h4 style={{ fontSize: '1rem', fontWeight: '800', color: '#111827', margin: '0 0 0.25rem 0' }}>{h.name}</h4>
+                <p style={{ fontSize: '0.85rem', color: '#4B5563', lineHeight: 1.5, margin: 0 }}>{h.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {checkins.length > 0 && (
+          <p style={{ textAlign: 'center', fontSize: '0.75rem', color: '#9CA3AF', marginTop: '1.25rem', fontWeight: '600' }}>
+            Based on your {checkins.length} check-in{checkins.length > 1 ? 's' : ''}
+          </p>
+        )}
+
+        <button 
+          onClick={onClose}
+          style={{ marginTop: '1rem', width: '100%', backgroundColor: '#2d6465', color: '#FFFFFF', border: 'none', padding: '1rem', borderRadius: '16px', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer' }}
+        >
+          Got It, Let's Go!
+        </button>
       </div>
     </div>
   );

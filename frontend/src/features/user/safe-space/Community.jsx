@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import apiClient from '../../../api/apiClient';
+import useAuthStore from '../../../store/useAuthStore';
 import { 
   Heart, MessageCircle, Share2, Image as ImageIcon, Smile,
   Search, Shield, CheckCircle2, TrendingUp, User, MoreHorizontal,
@@ -60,7 +61,12 @@ const SafeSpace = () => {
     };
     fetchPosts();
 
-    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    const token = useAuthStore.getState().token;
+    const SOCKET_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000';
+    const socket = io(SOCKET_URL, {
+      withCredentials: true,
+      auth: { token }
+    });
     
     socket.on('new_post', (post) => {
       setPosts((prev) => {

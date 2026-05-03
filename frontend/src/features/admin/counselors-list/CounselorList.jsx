@@ -37,17 +37,20 @@ const FilterModal = ({ isOpen, onClose }) => {
 // Information Modal Component
 const InfoModal = ({ isOpen, counselor, onClose }) => {
   if (!isOpen || !counselor) return null;
+  const isMobileModal = typeof window !== 'undefined' && window.innerWidth < 768;
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 2000, backdropFilter: 'blur(4px)'
+      zIndex: 2000, backdropFilter: 'blur(4px)', padding: isMobileModal ? '1rem' : '0'
     }}>
       <div style={{
-        backgroundColor: '#FFFFFF', borderRadius: '32px', width: '90%', maxWidth: '600px',
-        padding: '2.5rem', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', position: 'relative'
+        backgroundColor: '#FFFFFF', borderRadius: isMobileModal ? '20px' : '32px',
+        width: isMobileModal ? '100%' : '90%', maxWidth: '600px',
+        padding: isMobileModal ? '1.5rem' : '2.5rem', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', position: 'relative',
+        maxHeight: isMobileModal ? '85vh' : 'auto', overflowY: 'auto'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isMobileModal ? '1rem' : '2rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: '700' }}>
             <div style={{ backgroundColor: '#000', borderRadius: '50%', color: '#FFF', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Info size={14} />
@@ -60,51 +63,44 @@ const InfoModal = ({ isOpen, counselor, onClose }) => {
           }}>Active</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2.5rem' }}>
-          <Avatar size={100} initials={(counselor.fullName || 'C').charAt(0)} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobileModal ? '1rem' : '1.5rem', marginBottom: isMobileModal ? '1.5rem' : '2.5rem' }}>
+          <Avatar size={isMobileModal ? 60 : 100} initials={(counselor.fullName || 'C').charAt(0)} />
           <div>
-            <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1A1A2E' }}>{counselor.fullName}</h2>
-            <p style={{ margin: 0, color: '#8E9DA1', fontWeight: '600', fontSize: '1.2rem' }}>School Counselor</p>
+            <h2 style={{ margin: 0, fontSize: isMobileModal ? '1.3rem' : '2rem', fontWeight: '800', color: '#1A1A2E' }}>{counselor.fullName}</h2>
+            <p style={{ margin: 0, color: '#8E9DA1', fontWeight: '600', fontSize: isMobileModal ? '0.9rem' : '1.2rem' }}>School Counselor</p>
           </div>
         </div>
 
-        <hr style={{ border: 'none', borderTop: '1.5px solid #1A1A2E', opacity: 0.1, marginBottom: '2rem' }} />
+        <hr style={{ border: 'none', borderTop: '1.5px solid #1A1A2E', opacity: 0.1, marginBottom: isMobileModal ? '1rem' : '2rem' }} />
 
-        <div style={{ marginBottom: '2rem' }}>
-          <h4 style={{ margin: '0 0 1.25rem 0', fontSize: '1.1rem', fontWeight: '800', color: '#1A1A2E' }}>Contact Information</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: '0.75rem', fontSize: '1rem' }}>
-            <span style={{ color: '#000', fontWeight: '700' }}>Email:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{counselor.email}</span>
-            <span style={{ color: '#000', fontWeight: '700' }}>Work Phone:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.workPhone || 'N/A'}</span>
-            <span style={{ color: '#000', fontWeight: '700' }}>Office Location:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.officeLocation || 'N/A'}</span>
+        <div style={{ marginBottom: isMobileModal ? '1rem' : '2rem' }}>
+          <h4 style={{ margin: '0 0 1rem 0', fontSize: isMobileModal ? '0.95rem' : '1.1rem', fontWeight: '800', color: '#1A1A2E' }}>Contact Information</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: isMobileModal ? '0.85rem' : '1rem' }}>
+            <div><span style={{ color: '#000', fontWeight: '700' }}>Email: </span><span style={{ color: '#555', fontWeight: '500' }}>{counselor.email}</span></div>
+            <div><span style={{ color: '#000', fontWeight: '700' }}>Work Phone: </span><span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.workPhone || 'N/A'}</span></div>
+            <div><span style={{ color: '#000', fontWeight: '700' }}>Office: </span><span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.officeLocation || 'N/A'}</span></div>
           </div>
         </div>
 
-        <hr style={{ border: 'none', borderTop: '1.5px solid #1A1A2E', opacity: 0.1, marginBottom: '2rem' }} />
+        <hr style={{ border: 'none', borderTop: '1.5px solid #1A1A2E', opacity: 0.1, marginBottom: isMobileModal ? '1rem' : '2rem' }} />
 
         <div>
-          <h4 style={{ margin: '0 0 1.25rem 0', fontSize: '1.1rem', fontWeight: '800', color: '#1A1A2E' }}>Professional Information</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: '0.75rem', fontSize: '1rem' }}>
-            <span style={{ color: '#000', fontWeight: '700' }}>Employee ID:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.employeeId || 'N/A'}</span>
-            <span style={{ color: '#000', fontWeight: '700' }}>Specialization:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.specialization || 'N/A'}</span>
-            <span style={{ color: '#000', fontWeight: '700' }}>Experience:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.experience || 'N/A'}</span>
-            <span style={{ color: '#000', fontWeight: '700' }}>License:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.license || 'N/A'}</span>
+          <h4 style={{ margin: '0 0 1rem 0', fontSize: isMobileModal ? '0.95rem' : '1.1rem', fontWeight: '800', color: '#1A1A2E' }}>Professional Information</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: isMobileModal ? '0.85rem' : '1rem' }}>
+            <div><span style={{ color: '#000', fontWeight: '700' }}>Employee ID: </span><span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.employeeId || 'N/A'}</span></div>
+            <div><span style={{ color: '#000', fontWeight: '700' }}>Specialization: </span><span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.specialization || 'N/A'}</span></div>
+            <div><span style={{ color: '#000', fontWeight: '700' }}>Experience: </span><span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.experience || 'N/A'}</span></div>
+            <div><span style={{ color: '#000', fontWeight: '700' }}>License: </span><span style={{ color: '#555', fontWeight: '500' }}>{counselor.counselorProfile?.license || 'N/A'}</span></div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '3rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: isMobileModal ? '1.5rem' : '3rem' }}>
           <button 
             onClick={onClose}
             style={{
               backgroundColor: '#FFE0B2', color: '#EF6C00', border: '2.5px solid #EF6C00',
-              padding: '0.8rem 3.5rem', borderRadius: '100px', fontWeight: '800', cursor: 'pointer',
-              fontSize: '1.2rem'
+              padding: isMobileModal ? '0.6rem 2rem' : '0.8rem 3.5rem', borderRadius: '100px', fontWeight: '800', cursor: 'pointer',
+              fontSize: isMobileModal ? '1rem' : '1.2rem'
             }}
           >Close</button>
         </div>

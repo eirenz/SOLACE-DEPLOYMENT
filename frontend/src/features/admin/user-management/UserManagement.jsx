@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Trash2, Eye, UserPlus, MoreVertical, Users, ClipboardList, Info, AlertTriangle } from 'lucide-react';
+import { Search, Filter, Trash2, Eye, UserPlus, MoreVertical, Users, ClipboardList, Info, AlertTriangle, ShieldCheck } from 'lucide-react';
 import apiClient from '../../../api/apiClient';
 import { updateUserStatus } from '../../../api/adminApi';
 import Avatar from '../../../components/common/Avatar';
@@ -102,9 +102,10 @@ const InfoModal = ({ isOpen, user, onClose }) => {
   );
 };
 
-// Suspend Modal Component
+// Suspend/Unsuspend Modal Component
 const SuspendModal = ({ isOpen, user, onClose, onConfirm }) => {
   if (!isOpen || !user) return null;
+  const isSuspended = (user.status || '').toUpperCase() === 'SUSPENDED';
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -116,14 +117,24 @@ const SuspendModal = ({ isOpen, user, onClose, onConfirm }) => {
         padding: '3rem', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', textAlign: 'center'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem', fontWeight: '800', fontSize: '1.4rem' }}>
-          <AlertTriangle size={24} color="#000" />
-          <span>Suspend User</span>
+          {isSuspended ? <ShieldCheck size={24} color="#4CAF50" /> : <AlertTriangle size={24} color="#000" />}
+          <span>{isSuspended ? 'Unsuspend User' : 'Suspend User'}</span>
         </div>
-        <p style={{ color: '#1A1A2E', fontSize: '1.25rem', fontWeight: '600', marginBottom: '2.5rem' }}>Are you sure you want to suspend?</p>
+        <p style={{ color: '#1A1A2E', fontSize: '1.25rem', fontWeight: '600', marginBottom: '2.5rem' }}>
+          {isSuspended ? 'Are you sure you want to reactivate this user?' : 'Are you sure you want to suspend?'}
+        </p>
         
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', marginBottom: '3rem' }}>
           <Avatar size={80} initials={((user.fullName || user.alias || user.username || user.email)?.charAt(0) || '').toUpperCase()} />
-          <h3 style={{ margin: 0, fontSize: '1.6rem', fontWeight: '800', color: '#1A1A2E' }}>{user.fullName || user.alias || user.username || user.email || 'Unknown User'}</h3>
+          <div style={{ textAlign: 'left' }}>
+            <h3 style={{ margin: 0, fontSize: '1.6rem', fontWeight: '800', color: '#1A1A2E' }}>{user.fullName || user.alias || user.username || user.email || 'Unknown User'}</h3>
+            <span style={{
+              display: 'inline-block', marginTop: '0.5rem',
+              padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700',
+              backgroundColor: isSuspended ? '#FFEBEE' : '#E8F5E9',
+              color: isSuspended ? '#C62828' : '#2E7D32'
+            }}>{user.status || 'ACTIVE'}</span>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '1.5rem' }}>
@@ -137,10 +148,10 @@ const SuspendModal = ({ isOpen, user, onClose, onConfirm }) => {
           <button 
             onClick={() => onConfirm(user)}
             style={{
-              flex: 1, backgroundColor: '#E57373', color: '#FFF', border: 'none',
+              flex: 1, backgroundColor: isSuspended ? '#4CAF50' : '#E57373', color: '#FFF', border: 'none',
               padding: '0.8rem', borderRadius: '100px', fontWeight: '800', cursor: 'pointer'
             }}
-          >Suspend</button>
+          >{isSuspended ? 'Unsuspend' : 'Suspend'}</button>
         </div>
       </div>
     </div>
@@ -365,7 +376,9 @@ const UserManagement = () => {
                     }}>{user.status || 'ACTIVE'}</span>
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
                       <button onClick={() => openInfo(user)} style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: '#00BCD4', display: 'flex' }}><Eye size={16} /></button>
-                      <button onClick={() => openSuspend(user)} style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: '#EF5350', display: 'flex' }}><Trash2 size={16} /></button>
+                      <button onClick={() => openSuspend(user)} style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: (user.status || '').toUpperCase() === 'SUSPENDED' ? '#4CAF50' : '#EF5350', display: 'flex' }}>
+                        {(user.status || '').toUpperCase() === 'SUSPENDED' ? <ShieldCheck size={16} /> : <Trash2 size={16} />}
+                      </button>
                     </div>
                   </div>
                 );
@@ -407,7 +420,9 @@ const UserManagement = () => {
                       <td style={{ padding: '1.25rem 1.5rem', color: '#555', fontWeight: '500' }}>0</td>
                       <td style={{ padding: '1.25rem 1.5rem' }}>
                         <div style={{ display: 'flex', gap: '0.75rem' }}>
-                          <button onClick={() => openSuspend(user)} style={{ background: 'none', border: '2px solid #000', padding: '0.5rem', borderRadius: '10px', cursor: 'pointer', color: '#EF5350', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={20} /></button>
+                          <button onClick={() => openSuspend(user)} style={{ background: 'none', border: '2px solid #000', padding: '0.5rem', borderRadius: '10px', cursor: 'pointer', color: (user.status || '').toUpperCase() === 'SUSPENDED' ? '#4CAF50' : '#EF5350', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {(user.status || '').toUpperCase() === 'SUSPENDED' ? <ShieldCheck size={20} /> : <Trash2 size={20} />}
+                          </button>
                           <button onClick={() => openInfo(user)} style={{ background: 'none', border: '2px solid #000', padding: '0.5rem', borderRadius: '10px', cursor: 'pointer', color: '#00BCD4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Eye size={20} /></button>
                         </div>
                       </td>

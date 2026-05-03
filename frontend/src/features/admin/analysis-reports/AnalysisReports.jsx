@@ -129,6 +129,7 @@ const MoodHistoryModal = ({ isOpen, user, onClose }) => {
   const now = new Date();
   const [viewYear, setViewYear] = useState(now.getFullYear());
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1);
+  const isMobileModal = typeof window !== 'undefined' && window.innerWidth < 768;
 
   useEffect(() => {
     if (!isOpen || !user?.id) return;
@@ -150,48 +151,47 @@ const MoodHistoryModal = ({ isOpen, user, onClose }) => {
 
   const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const daysInMonth = new Date(viewYear, viewMonth, 0).getDate();
-  const firstDayOffset = new Date(viewYear, viewMonth - 1, 1).getDay(); // 0=Sun, 1=Mon, etc.
+  const firstDayOffset = new Date(viewYear, viewMonth - 1, 1).getDay();
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const moodByDay = moodData?.moodByDay || {};
 
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(4px)' }}>
-      <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: '24px', width: '90%', maxWidth: '700px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
-        <div style={{ backgroundColor: '#FF7070', padding: '1.25rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#FFF' }}>
-          <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '800' }}>Mood History</h2>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(4px)', padding: isMobileModal ? '1rem' : '0' }}>
+      <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: isMobileModal ? '20px' : '24px', width: isMobileModal ? '100%' : '90%', maxWidth: '700px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', maxHeight: isMobileModal ? '90vh' : 'auto', overflowY: 'auto' }}>
+        <div style={{ backgroundColor: '#FF7070', padding: isMobileModal ? '1rem 1.25rem' : '1.25rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#FFF', position: 'sticky', top: 0, zIndex: 1 }}>
+          <h2 style={{ margin: 0, fontSize: isMobileModal ? '1.1rem' : '1.4rem', fontWeight: '800' }}>Mood History</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#FFF', cursor: 'pointer' }}><X size={20} /></button>
         </div>
-        <div style={{ padding: '2.5rem' }}>
-          <h3 style={{ margin: '0 0 2rem 0', fontSize: '1.6rem', fontWeight: '800', color: '#1A1A2E' }}>{user?.fullName}</h3>
-          <div style={{ backgroundColor: '#FFF', borderRadius: '32px', border: '1.5px solid #E0E4E6', padding: '2rem', boxShadow: '0 10px 40px rgba(0,0,0,0.03)' }}>
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center' }}>
-              <select value={viewMonth} onChange={e => setViewMonth(Number(e.target.value))} style={{ fontWeight: '800', fontSize: '1.1rem', border: 'none', outline: 'none', cursor: 'pointer', backgroundColor: 'transparent' }}>
+        <div style={{ padding: isMobileModal ? '1rem' : '2.5rem' }}>
+          <h3 style={{ margin: isMobileModal ? '0 0 1rem 0' : '0 0 2rem 0', fontSize: isMobileModal ? '1.2rem' : '1.6rem', fontWeight: '800', color: '#1A1A2E' }}>{user?.fullName}</h3>
+          <div style={{ backgroundColor: '#FFF', borderRadius: isMobileModal ? '16px' : '32px', border: '1.5px solid #E0E4E6', padding: isMobileModal ? '0.75rem' : '2rem', boxShadow: '0 10px 40px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', marginBottom: isMobileModal ? '1rem' : '1.5rem', alignItems: 'center' }}>
+              <select value={viewMonth} onChange={e => setViewMonth(Number(e.target.value))} style={{ fontWeight: '800', fontSize: isMobileModal ? '0.9rem' : '1.1rem', border: 'none', outline: 'none', cursor: 'pointer', backgroundColor: 'transparent' }}>
                 {MONTH_NAMES.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
               </select>
-              <select value={viewYear} onChange={e => setViewYear(Number(e.target.value))} style={{ fontWeight: '800', fontSize: '1.1rem', border: 'none', outline: 'none', cursor: 'pointer', backgroundColor: 'transparent' }}>
+              <select value={viewYear} onChange={e => setViewYear(Number(e.target.value))} style={{ fontWeight: '800', fontSize: isMobileModal ? '0.9rem' : '1.1rem', border: 'none', outline: 'none', cursor: 'pointer', backgroundColor: 'transparent' }}>
                 {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
               </select>
             </div>
             {loading ? (
               <div style={{ textAlign: 'center', padding: '2rem', color: '#8E9DA1' }}>Loading...</div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: isMobileModal ? '3px' : '0.5rem' }}>
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div key={day} style={{ textAlign: 'center', color: '#8E9DA1', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.5rem' }}>{day}</div>
+                  <div key={day} style={{ textAlign: 'center', color: '#8E9DA1', fontWeight: '700', fontSize: isMobileModal ? '0.65rem' : '0.85rem', marginBottom: isMobileModal ? '0.25rem' : '0.5rem' }}>{isMobileModal ? day.charAt(0) : day}</div>
                 ))}
-                {/* Empty cells for first-of-month offset so days align to correct weekday */}
                 {Array.from({ length: firstDayOffset }).map((_, i) => (
                   <div key={`empty-${i}`} style={{ aspectRatio: '1/1' }} />
                 ))}
                 {days.map(day => (
                   <div key={day} style={{
-                    aspectRatio: '1/1', borderRadius: '10px', border: '1.5px solid #E0E4E6',
+                    aspectRatio: '1/1', borderRadius: isMobileModal ? '6px' : '10px', border: '1px solid #E0E4E6',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '0.3rem',
+                    padding: isMobileModal ? '2px' : '0.3rem',
                     backgroundColor: moodByDay[day] ? MOOD_COLORS[moodByDay[day]] : '#F9FAFB',
                   }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: '700', color: '#8E9DA1', alignSelf: 'flex-start' }}>{day}</span>
-                    {moodByDay[day] && <span style={{ fontSize: '1.1rem' }}>{MOOD_EMOJI[moodByDay[day]]}</span>}
+                    <span style={{ fontSize: isMobileModal ? '0.5rem' : '0.7rem', fontWeight: '700', color: '#8E9DA1', alignSelf: 'flex-start' }}>{day}</span>
+                    {moodByDay[day] && <span style={{ fontSize: isMobileModal ? '0.75rem' : '1.1rem' }}>{MOOD_EMOJI[moodByDay[day]]}</span>}
                   </div>
                 ))}
               </div>

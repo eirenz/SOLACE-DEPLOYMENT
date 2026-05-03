@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -17,6 +17,13 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'dummy_google_id';
   const facebookAppId = import.meta.env.VITE_FACEBOOK_APP_ID || 'dummy_facebook_id';
@@ -76,14 +83,14 @@ const Login = () => {
         maxWidth: '440px', 
         backgroundColor: '#FFFFFF',
         borderRadius: '32px',
-        padding: '3.5rem',
+        padding: isMobile ? '2.5rem 1.5rem' : '3.5rem',
         boxShadow: '0 20px 50px rgba(0,0,0,0.04)',
         textAlign: 'center'
       }}>
         <h1 style={{ 
           color: DARK_TEAL, 
           marginBottom: '0.75rem', 
-          fontSize: '2.2rem', 
+          fontSize: isMobile ? '1.8rem' : '2.2rem', 
           fontWeight: '900',
           letterSpacing: '-0.03em'
         }}>Welcome to Solace</h1>

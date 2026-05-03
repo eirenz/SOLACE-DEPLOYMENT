@@ -6,12 +6,13 @@ import { fetchAllAppointments, fetchAppointmentStats } from '../../../api/adminA
 const AppointmentInfoModal = ({ isOpen, appointment, onClose }) => {
   if (!isOpen || !appointment) return null;
   const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const isMobileModal = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(4px)' }}>
-      <div style={{ backgroundColor: '#FFFFFF', borderRadius: '32px', width: '90%', maxWidth: '580px', padding: '2.5rem', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', position: 'relative' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: '800', fontSize: '1.4rem', color: '#1A1A2E' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(4px)', padding: isMobileModal ? '1rem' : '0' }}>
+      <div style={{ backgroundColor: '#FFFFFF', borderRadius: isMobileModal ? '20px' : '32px', width: isMobileModal ? '100%' : '90%', maxWidth: '580px', padding: isMobileModal ? '1.5rem' : '2.5rem', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', position: 'relative', maxHeight: isMobileModal ? '90vh' : 'auto', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobileModal ? '1rem' : '2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: '800', fontSize: isMobileModal ? '1.2rem' : '1.4rem', color: '#1A1A2E' }}>
             <div style={{ backgroundColor: '#000', borderRadius: '50%', color: '#FFF', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Info size={14} />
             </div>
@@ -22,22 +23,22 @@ const AppointmentInfoModal = ({ isOpen, appointment, onClose }) => {
           </button>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
-          <Avatar size={100} initials={(appointment.alias || appointment.student?.fullName || 'S').charAt(0)} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobileModal ? '1rem' : '1.5rem', marginBottom: isMobileModal ? '1rem' : '2rem' }}>
+          <Avatar size={isMobileModal ? 64 : 100} initials={(appointment.alias || appointment.student?.fullName || 'S').charAt(0).toUpperCase()} />
           <div>
-            <h2 style={{ margin: 0, fontSize: '2.4rem', fontWeight: '800', color: '#1A1A2E' }}>
+            <h2 style={{ margin: 0, fontSize: isMobileModal ? '1.6rem' : '2.4rem', fontWeight: '800', color: '#1A1A2E', wordBreak: 'break-word' }}>
               {appointment.alias || appointment.student?.fullName}
             </h2>
-            <div style={{ backgroundColor: '#C5CAE9', color: '#1A1A2E', padding: '0.4rem 1.25rem', borderRadius: '100px', fontSize: '1rem', fontWeight: '800', marginTop: '0.5rem', display: 'inline-block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <div style={{ backgroundColor: '#C5CAE9', color: '#1A1A2E', padding: '0.4rem 1rem', borderRadius: '100px', fontSize: isMobileModal ? '0.8rem' : '1rem', fontWeight: '800', marginTop: '0.5rem', display: 'inline-block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               {appointment.counselor?.fullName || 'Counselor'}
             </div>
           </div>
         </div>
 
-        <hr style={{ border: 'none', borderTop: '2px solid #1A1A2E', opacity: 0.1, marginBottom: '2rem' }} />
+        <hr style={{ border: 'none', borderTop: '2px solid #1A1A2E', opacity: 0.1, marginBottom: isMobileModal ? '1.5rem' : '2rem' }} />
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
-          <div style={{ backgroundColor: '#FFF', borderRadius: '24px', border: '1.5px solid #8E9DA1', padding: '1.5rem', minHeight: '180px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobileModal ? '1fr' : '1fr 1fr', gap: isMobileModal ? '1.5rem' : '2rem', marginBottom: isMobileModal ? '2rem' : '3rem' }}>
+          <div style={{ backgroundColor: '#FFF', borderRadius: '24px', border: '1.5px solid #8E9DA1', padding: '1.5rem', minHeight: isMobileModal ? '120px' : '180px' }}>
             <h4 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', fontWeight: '800', color: '#1A1A2E' }}>Notes:</h4>
             <p style={{ margin: '0 0 0 1rem', fontSize: '1.05rem', color: '#1A1A2E', fontWeight: '600', lineHeight: '1.5' }}>
               {appointment.notes || 'No notes provided.'}

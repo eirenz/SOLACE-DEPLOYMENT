@@ -113,7 +113,7 @@ const CheckIn = () => {
       maxWidth: '540px', 
       backgroundColor: '#FFFFFF',
       borderRadius: '32px',
-      padding: '3.5rem',
+      padding: isMobile ? '2.5rem 1.25rem' : '3.5rem',
       boxShadow: '0 20px 50px rgba(0,0,0,0.04)',
       textAlign: 'center',
       ...style
@@ -149,7 +149,7 @@ const CheckIn = () => {
     return (
       <PageBackground>
         <StepCard>
-          <h1 style={{ color: DARK_TEAL, fontSize: '2.5rem', fontWeight: '900', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
+          <h1 style={{ color: DARK_TEAL, fontSize: isMobile ? '2rem' : '2.5rem', fontWeight: '900', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
             How are you<br />feeling today?
           </h1>
           <p style={{ color: '#6B7280', fontSize: '1rem', marginBottom: '3.5rem', fontWeight: '600' }}>Tap an emoji to check-in</p>
@@ -160,8 +160,8 @@ const CheckIn = () => {
                 <div 
                   onClick={() => setSelectedMood(mood)}
                   style={{
-                    width: '64px', height: '64px', borderRadius: '18px', backgroundColor: mood.color,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.25rem',
+                    width: isMobile ? '56px' : '64px', height: isMobile ? '56px' : '64px', borderRadius: '18px', backgroundColor: mood.color,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isMobile ? '1.8rem' : '2.25rem',
                     cursor: 'pointer', transition: 'all 0.2s',
                     border: selectedMood?.id === mood.id ? `3px solid ${DARK_TEAL}` : 'none',
                     transform: selectedMood?.id === mood.id ? 'scale(1.1)' : 'scale(1)'
@@ -169,7 +169,7 @@ const CheckIn = () => {
                 >
                   {mood.icon}
                 </div>
-                <span style={{ fontSize: '0.65rem', fontWeight: '800', color: selectedMood?.id === mood.id ? DARK_TEAL : '#9CA3AF' }}>{mood.label.toUpperCase()}</span>
+                <span style={{ fontSize: isMobile ? '0.55rem' : '0.65rem', fontWeight: '800', color: selectedMood?.id === mood.id ? DARK_TEAL : '#9CA3AF' }}>{mood.label.toUpperCase()}</span>
               </div>
             ))}
           </div>

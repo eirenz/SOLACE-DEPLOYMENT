@@ -80,7 +80,10 @@ const SafeSpace = () => {
     socket.on('new_reply', (reply) => {
       setPosts((prev) => prev.map(p => {
         if (p.id === reply.postId) {
-          return { ...p, replies: [...p.replies, reply] };
+          // Deduplicate: only add if this reply isn't already in the list
+          const alreadyExists = p.replies?.some(r => r.id === reply.id);
+          if (alreadyExists) return p;
+          return { ...p, replies: [...(p.replies || []), reply] };
         }
         return p;
       }));
@@ -229,7 +232,17 @@ const SafeSpace = () => {
   const submitReply = async (postId) => {
     if (!replyContent.trim()) return;
     try {
-      await apiClient.post(`/community/${postId}/reply`, { content: replyContent });
+      const res = await apiClient.post(`/community/${postId}/reply`, { content: replyContent });
+      const newReply = res.data;
+      // Immediately add the reply to local state so it appears instantly
+      setPosts(prev => prev.map(p => {
+        if (p.id === postId) {
+          const alreadyExists = p.replies?.some(r => r.id === newReply.id);
+          if (alreadyExists) return p;
+          return { ...p, replies: [...(p.replies || []), newReply] };
+        }
+        return p;
+      }));
       setReplyContent('');
     } catch (error) {
       console.error('Failed to reply', error);

@@ -564,7 +564,18 @@ const Appointments = () => {
   );
 
   const renderChatActive = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.3s ease-out', minHeight: 0 }}>
+    <div style={{ 
+      display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.3s ease-out', minHeight: 0,
+      ...(isPhone ? {
+        position: 'fixed',
+        top: '64px', /* Below mobile header */
+        bottom: '84px', /* Above mobile bottom nav */
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        backgroundColor: '#FFFFFF'
+      } : {})
+    }}>
       {/* Header — sticky */}
       <div style={{ padding: '1.5rem 3rem', display: 'flex', alignItems: 'center', backgroundColor: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', zIndex: 10, flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', width: '100%' }}>

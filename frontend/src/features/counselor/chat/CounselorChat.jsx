@@ -256,7 +256,22 @@ const CounselorChat = () => {
         </div>
 
         {/* ─── Main Chat View ─── */}
-        <div style={{ display: (!isMobile || activeChat) ? 'flex' : 'none', flexDirection: 'column', backgroundColor: '#FFFFFF', minHeight: 0, height: isMobile ? '100%' : undefined }}>
+        <div style={{ 
+          display: (!isMobile || activeChat) ? 'flex' : 'none', 
+          flexDirection: 'column', 
+          backgroundColor: '#FFFFFF', 
+          minHeight: 0, 
+          height: isMobile ? '100%' : undefined,
+          ...(isMobile && activeChat ? {
+            position: 'fixed',
+            top: '64px', /* Below mobile header */
+            bottom: '84px', /* Above mobile bottom nav */
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            borderRadius: '0' /* Full screen on mobile */
+          } : {})
+        }}>
           {activeChat ? (
             <>
               {/* Chat header — sticky */}

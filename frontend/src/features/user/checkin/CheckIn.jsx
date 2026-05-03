@@ -154,14 +154,14 @@ const CheckIn = () => {
           </h1>
           <p style={{ color: '#6B7280', fontSize: '1rem', marginBottom: '3.5rem', fontWeight: '600' }}>Tap an emoji to check-in</p>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: isMobile ? '0.4rem' : '1rem' }}>
             {MOODS.map(mood => (
               <div key={mood.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
                 <div 
                   onClick={() => setSelectedMood(mood)}
                   style={{
-                    width: isMobile ? '56px' : '64px', height: isMobile ? '56px' : '64px', borderRadius: '18px', backgroundColor: mood.color,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isMobile ? '1.8rem' : '2.25rem',
+                    width: isMobile ? '48px' : '64px', height: isMobile ? '48px' : '64px', borderRadius: '18px', backgroundColor: mood.color,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isMobile ? '1.5rem' : '2.25rem',
                     cursor: 'pointer', transition: 'all 0.2s',
                     border: selectedMood?.id === mood.id ? `3px solid ${DARK_TEAL}` : 'none',
                     transform: selectedMood?.id === mood.id ? 'scale(1.1)' : 'scale(1)'

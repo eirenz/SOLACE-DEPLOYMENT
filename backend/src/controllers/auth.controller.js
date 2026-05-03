@@ -355,7 +355,7 @@ const googleLogin = async (req, res, next) => {
     // Verify Google token
     const ticket = await googleClient.verifyIdToken({
       idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: process.env.GOOGLE_CLIENT_ID || '219508067153-l1hi9p3psonc5llundrvi02dc79d93i6.apps.googleusercontent.com',
     });
     const payload = ticket.getPayload();
     const { email, name, sub: googleId, picture: avatarUrl } = payload;

@@ -5,7 +5,6 @@ import Button from '../../components/common/Button';
 import useAuthStore from '../../store/useAuthStore';
 import apiClient from '../../api/apiClient';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 
 const DARK_TEAL = '#064E3B';
 const LIGHT_TEAL = '#A5F3FC';
@@ -22,8 +21,7 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'dummy_google_id';
-  const facebookAppId = import.meta.env.VITE_FACEBOOK_APP_ID || 'dummy_facebook_id';
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '219508067153-l1hi9p3psonc5llundrvi02dc79d93i6.apps.googleusercontent.com';
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -232,33 +230,13 @@ const SignUp = () => {
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
               <GoogleLogin
                 onSuccess={(credentialResponse) => handleOAuthSuccess('google', credentialResponse.credential)}
-                onError={() => setError('Google Signup Failed')}
+                onError={() => setError('Google Login Failed')}
                 text="signup_with"
                 size="large"
                 shape="pill"
                 width="100%"
               />
             </div>
-            
-            <FacebookLogin
-              appId={facebookAppId}
-              autoLoad={false}
-              fields="name,email,picture"
-              callback={(response) => response.accessToken && handleOAuthSuccess('facebook', response.accessToken)}
-              render={renderProps => (
-                <button 
-                  onClick={renderProps.onClick} 
-                  disabled={isLoading}
-                  style={{ 
-                    flex: 1, height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '100px',
-                    color: '#374151', fontSize: '0.9rem', fontWeight: '600', cursor: 'pointer'
-                  }}
-                >
-                  Facebook
-                </button>
-              )}
-            />
           </div>
         </GoogleOAuthProvider>
 

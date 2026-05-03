@@ -29,19 +29,48 @@ const formatDate = (dateStr) => {
 
 // ─── Send Support Message Modal ────────────────────────────────────────────────
 
-const MessageModal = ({ isOpen, user, onClose }) => {
+const MessageModal = ({ isOpen, user, highPriorityUsers, onClose }) => {
+  const [recipientType, setRecipientType] = useState('individual'); // 'individual' | 'all'
   const [sending, setSending] = useState(false);
-  const [title, setTitle] = useState('We Care About You');
-  const [message, setMessage] = useState("We've noticed you've been feeling stressed frequently this week. You're not alone, and we're here to help. Your well-being matters to us.\n\nTaking care of your mental health is a sign of strength. Consider talking to a professional counselor who can provide personalized support.");
+  const [title, setTitle] = useState('');
+  const [message, setMessage] = useState('');
   const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setRecipientType('individual');
+    
+    const targetMood = recipientType === 'all' ? 'STRESSED' : (user?.latestMood || 'STRESSED');
+    
+    if (targetMood === 'HAPPY') {
+      setTitle('Keep Up the Great Energy!');
+      setMessage("We noticed you've been feeling great lately! Your positive energy is wonderful to see. Keep up the habits that are supporting your well-being, and remember we're always here if you ever need a chat.");
+    } else if (targetMood === 'NEUTRAL') {
+      setTitle('Checking In On You');
+      setMessage("We wanted to drop a quick note to see how you're doing. It looks like things have been steady for you. If you ever feel like talking to someone or exploring ways to elevate your mood, our counselors are just a click away.");
+    } else {
+      setTitle('We Care About You');
+      setMessage("We've noticed you've been feeling stressed frequently this week. You're not alone, and we're here to help. Your well-being matters to us.\n\nTaking care of your mental health is a sign of strength. Consider talking to a professional counselor who can provide personalized support.");
+    }
+  }, [user, recipientType, isOpen]);
 
   if (!isOpen) return null;
 
   const handleSend = async () => {
-    if (!user?.id || !title.trim() || !message.trim()) return;
+    if (!title.trim() || !message.trim()) return;
+    if (recipientType === 'individual' && !user?.id) return;
+    if (recipientType === 'all' && (!highPriorityUsers || highPriorityUsers.length === 0)) {
+      alert("No high priority users available.");
+      return;
+    }
+    
     setSending(true);
     try {
-      await sendSupportMessage(user.id, title, message);
+      if (recipientType === 'individual') {
+        await sendSupportMessage(user.id, title, message);
+      } else {
+        await Promise.all(highPriorityUsers.map(u => sendSupportMessage(u.id, title, message)));
+      }
       setSent(true);
       setTimeout(() => { setSent(false); onClose(); }, 1500);
     } catch (e) {
@@ -56,7 +85,9 @@ const MessageModal = ({ isOpen, user, onClose }) => {
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(4px)' }}>
       <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', width: '95%', maxWidth: '1000px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <div style={{ backgroundColor: '#64A19D', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#FFF' }}>
-          <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700' }}>Send Support Message to {user?.fullName}</h2>
+          <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700' }}>
+            {recipientType === 'individual' ? `Send Support Message to ${user?.fullName}` : 'Send to All High Priority Users'}
+          </h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#FFF', cursor: 'pointer' }}><X size={24} /></button>
         </div>
         <div style={{ padding: '2rem', flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '3rem' }}>
@@ -65,15 +96,17 @@ const MessageModal = ({ isOpen, user, onClose }) => {
             <section>
               <h4 style={{ margin: '0 0 1rem 0', color: '#1A1A2E', fontWeight: '800' }}>Select Recipients</h4>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div style={{ border: '1.5px solid #64A19D', borderRadius: '12px', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: '#F0FAF9' }}>
-                  <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid #64A19D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#64A19D' }} />
+                <div onClick={() => setRecipientType('individual')} style={{ cursor: 'pointer', border: recipientType === 'individual' ? '1.5px solid #64A19D' : '1.5px solid #E0E4E6', borderRadius: '12px', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: recipientType === 'individual' ? '#F0FAF9' : '#FFF' }}>
+                  <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: recipientType === 'individual' ? '2px solid #64A19D' : '2px solid #8E9DA1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {recipientType === 'individual' && <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#64A19D' }} />}
                   </div>
                   <span style={{ flex: 1, fontSize: '0.9rem', fontWeight: '700', color: '#1A1A2E' }}>Individual User</span>
                   <span style={{ backgroundColor: '#C5CAE9', padding: '0.2rem 0.75rem', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '800' }}>{user?.fullName || user?.alias}</span>
                 </div>
-                <div style={{ border: '1.5px solid #E0E4E6', borderRadius: '12px', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', opacity: 0.5 }}>
-                  <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid #8E9DA1' }} />
+                <div onClick={() => setRecipientType('all')} style={{ cursor: 'pointer', border: recipientType === 'all' ? '1.5px solid #64A19D' : '1.5px solid #E0E4E6', borderRadius: '12px', padding: '0.6rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: recipientType === 'all' ? '#F0FAF9' : '#FFF' }}>
+                  <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: recipientType === 'all' ? '2px solid #64A19D' : '2px solid #8E9DA1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {recipientType === 'all' && <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#64A19D' }} />}
+                  </div>
                   <span style={{ flex: 1, fontSize: '0.9rem', fontWeight: '700', color: '#1A1A2E' }}>All High Priority Users</span>
                 </div>
               </div>
@@ -593,7 +626,7 @@ const AnalysisReports = () => {
         </>
       )}
 
-      <MessageModal isOpen={modalType === 'message'} user={selectedUser} onClose={() => setModalType(null)} />
+      <MessageModal isOpen={modalType === 'message'} user={selectedUser} highPriorityUsers={users.high_priority || []} onClose={() => setModalType(null)} />
       <MoodHistoryModal isOpen={modalType === 'calendar'} user={selectedUser} onClose={() => setModalType(null)} />
     </div>
   );

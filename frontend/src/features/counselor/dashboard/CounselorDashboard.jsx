@@ -242,7 +242,7 @@ const CounselorDashboard = () => {
   const isToday = (day) => today.getFullYear() === calendarYear && today.getMonth() === calendarMonth && today.getDate() === day;
 
   return (
-    <div style={{ margin: '0 auto', height: '100%', overflowY: 'auto', paddingRight: isMobile ? '0' : '1rem', paddingBottom: isMobile ? '6rem' : '0' }}>
+    <div style={{ width: '100%', height: '100%', overflowY: 'auto', paddingRight: isMobile ? '0' : '1rem', paddingBottom: isMobile ? '6rem' : '0' }}>
       <header style={{ marginBottom: isMobile ? '1rem' : '3rem', display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1.25rem' }}>
         <LayoutGrid size={isMobile ? 24 : 38} color="var(--primary)" />
         <div>
@@ -254,12 +254,12 @@ const CounselorDashboard = () => {
       </header>
 
       {/* Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(320px, 1fr))', gap: isMobile ? '1rem' : '2.5rem', marginBottom: isMobile ? '2rem' : '3.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '1rem' : '2rem', marginBottom: isMobile ? '2rem' : '3.5rem' }}>
         {stats.map((s, i) => <StatCard key={i} {...s} loading={loading} />)}
       </div>
 
       {/* Main Layout: Tables + Calendar */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 380px', gap: isMobile ? '2rem' : '2.5rem', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.5fr 1fr', gap: isMobile ? '2rem' : '2rem', alignItems: 'start' }}>
         
         {/* Left Side: Tables */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>

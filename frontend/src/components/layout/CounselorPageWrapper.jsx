@@ -230,6 +230,7 @@ const CounselorPageWrapper = () => {
           )}
         </div>
       </div>
+    )}
     </>
   );
 };

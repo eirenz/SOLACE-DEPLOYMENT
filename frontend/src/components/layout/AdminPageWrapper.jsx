@@ -228,6 +228,7 @@ const AdminPageWrapper = () => {
           <button onClick={() => { setAppointmentMessage(null); navigate(appointmentMessage.link || '/admin/appointments'); }} style={{ backgroundColor: '#064E3B', color: '#FFF', border: 'none', borderRadius: '12px', padding: '0.9rem 2rem', fontWeight: '800', fontSize: '1rem', cursor: 'pointer' }}>Go to Appointments</button>
         </div>
       </div>
+    )}
     </>
   );
 };

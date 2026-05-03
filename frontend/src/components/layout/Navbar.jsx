@@ -328,8 +328,6 @@ const Navbar = ({ userName = 'Bea', avatarSrc }) => {
           )}
         </div>
         
-        <Settings size={22} color="#4B5563" style={{ cursor: 'pointer' }} />
-        
         <div style={{ width: '1px', height: '24px', backgroundColor: '#E5E7EB', margin: '0 0.5rem' }} />
 
         <div 

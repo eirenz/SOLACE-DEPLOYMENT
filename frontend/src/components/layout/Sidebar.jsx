@@ -75,27 +75,6 @@ const Sidebar = ({ activeTab = 'home', onTabChange }) => {
         })}
       </div>
 
-      <div style={{ marginTop: 'auto' }}>
-        <button style={{
-          width: '100%',
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '1rem',
-          padding: '1.1rem 1.75rem',
-          backgroundColor: DARK_TEAL,
-          color: '#FFFFFF',
-          border: 'none',
-          borderRadius: '20px',
-          cursor: 'pointer',
-          fontWeight: '700',
-          fontSize: '1rem',
-          boxShadow: '0 10px 25px rgba(6, 78, 59, 0.2)',
-          transition: 'all 0.3s ease'
-        }}>
-          <Plus size={22} strokeWidth={3} />
-          <span>New Reflection</span>
-        </button>
-      </div>
     </nav>
   );
 };

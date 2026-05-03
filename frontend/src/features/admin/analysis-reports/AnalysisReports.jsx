@@ -42,9 +42,13 @@ const MessageModal = ({ isOpen, user, allUsers, onClose }) => {
   const groupLabel = isHappy ? 'All Normal Users' : isNeutral ? 'All Moderate Users' : 'All High Priority Users';
   const targetGroupList = isHappy ? (allUsers?.normal || []) : isNeutral ? (allUsers?.moderate || []) : (allUsers?.high_priority || []);
 
+  // Initialize recipient type when modal opens
+  useEffect(() => {
+    if (isOpen) setRecipientType('individual');
+  }, [isOpen, user?.id]);
+
   useEffect(() => {
     if (!isOpen) return;
-    setRecipientType('individual');
     
     // Preset always matches the selected user's group
     const targetMood = user?.latestMood || 'STRESSED';
@@ -59,7 +63,7 @@ const MessageModal = ({ isOpen, user, allUsers, onClose }) => {
       setTitle('We Care About You');
       setMessage("We've noticed you've been feeling stressed frequently this week. You're not alone, and we're here to help. Your well-being matters to us.\n\nTaking care of your mental health is a sign of strength. Consider talking to a professional counselor who can provide personalized support.");
     }
-  }, [user, recipientType, isOpen]);
+  }, [user, isOpen]);
 
   if (!isOpen) return null;
 

@@ -71,6 +71,7 @@ const HomeDashboard = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [weeklyPercentages, setWeeklyPercentages] = useState([0, 0, 0, 0]);
   const [isLoading, setIsLoading] = useState(true);
+  const [todayMood, setTodayMood] = useState(null);
 
   const today = new Date();
   const dateString = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
@@ -83,12 +84,18 @@ const HomeDashboard = () => {
     
     const fetchData = async () => {
       try {
-        const { data } = await apiClient.get(`/checkins/weekly-analysis?month=${currentMonthNum}&year=${currentYear}`);
-        if (data && data.percentages) {
-          setWeeklyPercentages(data.percentages);
+        const [weeklyRes, todayRes] = await Promise.all([
+          apiClient.get(`/checkins/weekly-analysis?month=${currentMonthNum}&year=${currentYear}`),
+          apiClient.get('/checkins/today')
+        ]);
+        if (weeklyRes.data && weeklyRes.data.percentages) {
+          setWeeklyPercentages(weeklyRes.data.percentages);
+        }
+        if (todayRes.data && todayRes.data.mood) {
+          setTodayMood(todayRes.data.mood);
         }
       } catch (err) {
-        console.error('Failed to fetch weekly analysis', err);
+        console.error('Failed to fetch dashboard data', err);
       } finally {
         setIsLoading(false);
       }
@@ -145,7 +152,7 @@ const HomeDashboard = () => {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               {moodEmojis.map((m, i) => {
-                const isSelected = i === 2; // Default mock selection for design
+                const isSelected = todayMood ? todayMood === m.label.toUpperCase() : false;
                 return (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
                   <button 

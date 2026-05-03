@@ -545,7 +545,9 @@ const AnalysisReports = () => {
                 <div style={{ padding: '0 3rem 3rem 3rem', textAlign: 'center' }}>
                   {alert ? (
                     <>
-                      <Avatar size={90} name={alert.fullName} avatarUrl={alert.avatarUrl} style={{ margin: '0 auto 1.5rem auto' }} />
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                        <Avatar size={90} initials={(alert.fullName || alert.alias || '?').charAt(0).toUpperCase()} src={alert.avatarUrl} />
+                      </div>
                       <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.4rem', fontWeight: '800', color: '#1A1A2E' }}>{alert.fullName}</h3>
                       {alert.alias && <p style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', color: '#8E9DA1', fontWeight: '600' }}>({alert.alias})</p>}
                       <div style={{ backgroundColor: '#F9F3D1', padding: '1.5rem', borderRadius: '24px', margin: '1rem 0', textAlign: 'left' }}>

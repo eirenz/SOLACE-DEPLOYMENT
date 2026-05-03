@@ -157,6 +157,13 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -231,17 +238,17 @@ const UserManagement = () => {
   };
 
   return (
-    <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <div style={{ backgroundColor: '#1A1A2E', padding: '0.75rem', borderRadius: '12px', color: '#FFF' }}>
-            <Users size={28} />
+    <div style={{ animation: 'fadeIn 0.5s ease-out', paddingBottom: isMobile ? '5rem' : '0' }}>
+      <header style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'stretch' : 'center', gap: isMobile ? '1rem' : '0', marginBottom: isMobile ? '1.5rem' : '2.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1.25rem' }}>
+          <div style={{ backgroundColor: '#1A1A2E', padding: isMobile ? '0.5rem' : '0.75rem', borderRadius: '12px', color: '#FFF' }}>
+            <Users size={isMobile ? 20 : 28} />
           </div>
-          <h1 style={{ fontSize: '2.4rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>User Management</h1>
+          <h1 style={{ fontSize: isMobile ? '1.4rem' : '2.4rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>User Management</h1>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
             <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#8E9DA1' }} />
             <div style={{ 
               display: 'flex', alignItems: 'center', 
@@ -256,10 +263,11 @@ const UserManagement = () => {
                 style={{
                   padding: '0.75rem 1rem 0.75rem 2.75rem',
                   border: 'none',
-                  width: '300px',
+                  width: isMobile ? '100%' : '300px',
                   fontSize: '0.95rem',
                   outline: 'none',
                   borderRadius: '12px',
+                  boxSizing: 'border-box',
                 }}
               />
               <button 
@@ -275,12 +283,12 @@ const UserManagement = () => {
       </header>
 
       {/* Stats Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? '0.75rem' : '1.5rem', marginBottom: isMobile ? '1rem' : '2rem' }}>
         {stats.map((stat, index) => (
           <div key={index} style={{
             backgroundColor: '#FFFFFF',
-            padding: '1.5rem',
-            borderRadius: '24px',
+            padding: isMobile ? '1rem' : '1.5rem',
+            borderRadius: isMobile ? '16px' : '24px',
             border: '1.5px solid #E0E4E6',
             display: 'flex',
             justifyContent: 'space-between',
@@ -288,11 +296,11 @@ const UserManagement = () => {
             boxShadow: '0 4px 15px rgba(0,0,0,0.02)'
           }}>
             <div>
-              <p style={{ margin: '0 0 0.5rem 0', color: '#1A1A2E', fontWeight: '700', fontSize: '0.9rem' }}>{stat.label}</p>
-              <h3 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1A1A2E' }}>{stat.value}</h3>
+              <p style={{ margin: '0 0 0.25rem 0', color: '#1A1A2E', fontWeight: '700', fontSize: isMobile ? '0.7rem' : '0.9rem' }}>{stat.label}</p>
+              <h3 style={{ margin: 0, fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: '800', color: '#1A1A2E' }}>{stat.value}</h3>
             </div>
-            <div style={{ backgroundColor: '#F4F7F8', padding: '0.75rem', borderRadius: '50%' }}>
-               <stat.icon size={28} color="#1A1A2E" />
+            <div style={{ backgroundColor: '#F4F7F8', padding: isMobile ? '0.5rem' : '0.75rem', borderRadius: '50%' }}>
+               <stat.icon size={isMobile ? 18 : 28} color="#1A1A2E" />
             </div>
           </div>
         ))}
@@ -325,97 +333,91 @@ const UserManagement = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div style={{
         backgroundColor: '#FFFFFF',
-        borderRadius: '24px',
+        borderRadius: isMobile ? '16px' : '24px',
         border: '1.5px solid #E0E4E6',
         overflow: 'hidden',
         boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
       }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#F9FAFB', borderBottom: '1.5px solid #E0E4E6' }}>
-              <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>User</th>
-              <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Date Created</th>
-              <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Status</th>
-              <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Report</th>
-              <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        {isMobile ? (
+          /* Mobile card layout */
+          <div>
             {loading ? (
-              <tr>
-                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#8E9DA1' }}>
-                  Loading users...
-                </td>
-              </tr>
+              <div style={{ padding: '2rem', textAlign: 'center', color: '#8E9DA1' }}>Loading users...</div>
             ) : error ? (
-              <tr>
-                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#EF5350' }}>
-                  {error}
-                </td>
-              </tr>
+              <div style={{ padding: '2rem', textAlign: 'center', color: '#EF5350' }}>{error}</div>
             ) : filteredUsers.length === 0 ? (
-              <tr>
-                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#8E9DA1' }}>
-                  No users found.
-                </td>
-              </tr>
+              <div style={{ padding: '2rem', textAlign: 'center', color: '#8E9DA1' }}>No users found.</div>
             ) : (
-              filteredUsers.map((user) => {
+              filteredUsers.map((user, i) => {
                 const displayName = user.fullName || user.alias || user.username || user.email;
                 return (
-                  <tr key={user.id} style={{ borderBottom: '1px solid #F0F4F5' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F9FAFB'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                    <td style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <Avatar size={40} initials={(displayName?.charAt(0) || '').toUpperCase()} />
-                      <span style={{ fontWeight: '600', color: '#1A1A2E' }}>{displayName}</span>
-                    </td>
-                    <td style={{ padding: '1.25rem 1.5rem', color: '#555', fontWeight: '500' }}>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}</td>
-                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                      <span style={{
-                        padding: '0.4rem 1rem',
-                        borderRadius: '100px',
-                        fontSize: '0.85rem',
-                        fontWeight: '700',
-                        ...getStatusStyle(user.status || 'Active')
-                      }}>
-                        {user.status || 'ACTIVE'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '1.25rem 1.5rem', color: '#555', fontWeight: '500' }}>0</td>
-                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.75rem' }}>
-                        <button 
-                          onClick={() => openSuspend(user)}
-                          style={{ 
-                            background: 'none', border: '2px solid #000', 
-                            padding: '0.5rem', borderRadius: '10px', 
-                            cursor: 'pointer', color: '#EF5350',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center'
-                          }}
-                        >
-                          <Trash2 size={20} />
-                        </button>
-                        <button 
-                          onClick={() => openInfo(user)}
-                          style={{ 
-                            background: 'none', border: '2px solid #000', 
-                            padding: '0.5rem', borderRadius: '10px', 
-                            cursor: 'pointer', color: '#00BCD4',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center'
-                          }}
-                        >
-                          <Eye size={20} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                  <div key={user.id} style={{ padding: '1rem 1.25rem', borderBottom: i === filteredUsers.length - 1 ? 'none' : '1px solid #F0F4F5', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <Avatar size={36} initials={(displayName?.charAt(0) || '').toUpperCase()} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: 0, fontWeight: '700', color: '#1A1A2E', fontSize: '0.9rem' }}>{displayName}</p>
+                      <p style={{ margin: '0.15rem 0 0 0', color: '#8E9DA1', fontSize: '0.7rem', fontWeight: '500' }}>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}</p>
+                    </div>
+                    <span style={{
+                      padding: '0.2rem 0.5rem', borderRadius: '100px', fontSize: '0.6rem', fontWeight: '700',
+                      ...getStatusStyle(user.status || 'Active')
+                    }}>{user.status || 'ACTIVE'}</span>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <button onClick={() => openInfo(user)} style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: '#00BCD4', display: 'flex' }}><Eye size={16} /></button>
+                      <button onClick={() => openSuspend(user)} style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: '#EF5350', display: 'flex' }}><Trash2 size={16} /></button>
+                    </div>
+                  </div>
                 );
               })
             )}
-          </tbody>
-        </table>
+          </div>
+        ) : (
+          /* Desktop table */
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#F9FAFB', borderBottom: '1.5px solid #E0E4E6' }}>
+                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>User</th>
+                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Date Created</th>
+                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Status</th>
+                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Report</th>
+                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#8E9DA1' }}>Loading users...</td></tr>
+              ) : error ? (
+                <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#EF5350' }}>{error}</td></tr>
+              ) : filteredUsers.length === 0 ? (
+                <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#8E9DA1' }}>No users found.</td></tr>
+              ) : (
+                filteredUsers.map((user) => {
+                  const displayName = user.fullName || user.alias || user.username || user.email;
+                  return (
+                    <tr key={user.id} style={{ borderBottom: '1px solid #F0F4F5' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F9FAFB'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                      <td style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <Avatar size={40} initials={(displayName?.charAt(0) || '').toUpperCase()} />
+                        <span style={{ fontWeight: '600', color: '#1A1A2E' }}>{displayName}</span>
+                      </td>
+                      <td style={{ padding: '1.25rem 1.5rem', color: '#555', fontWeight: '500' }}>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}</td>
+                      <td style={{ padding: '1.25rem 1.5rem' }}>
+                        <span style={{ padding: '0.4rem 1rem', borderRadius: '100px', fontSize: '0.85rem', fontWeight: '700', ...getStatusStyle(user.status || 'Active') }}>{user.status || 'ACTIVE'}</span>
+                      </td>
+                      <td style={{ padding: '1.25rem 1.5rem', color: '#555', fontWeight: '500' }}>0</td>
+                      <td style={{ padding: '1.25rem 1.5rem' }}>
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                          <button onClick={() => openSuspend(user)} style={{ background: 'none', border: '2px solid #000', padding: '0.5rem', borderRadius: '10px', cursor: 'pointer', color: '#EF5350', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={20} /></button>
+                          <button onClick={() => openInfo(user)} style={{ background: 'none', border: '2px solid #000', padding: '0.5rem', borderRadius: '10px', cursor: 'pointer', color: '#00BCD4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Eye size={20} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <InfoModal isOpen={isInfoOpen} user={selectedUser} onClose={() => setIsInfoOpen(false)} />

@@ -149,6 +149,13 @@ const FlagContent = () => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [isViolationOpen, setIsViolationOpen] = useState(false);
   const [isSuspendOpen, setIsSuspendOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const loadReports = async () => {
     try {
@@ -197,24 +204,24 @@ const FlagContent = () => {
   };
 
   return (
-    <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-      <header style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '2.5rem' }}>
-        <div style={{ backgroundColor: '#1A1A2E', padding: '0.75rem', borderRadius: '12px', color: '#FFF' }}>
-          <Users size={28} />
+    <div style={{ animation: 'fadeIn 0.5s ease-out', paddingBottom: isMobile ? '5rem' : '0' }}>
+      <header style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1.25rem', marginBottom: isMobile ? '1rem' : '2.5rem' }}>
+        <div style={{ backgroundColor: '#1A1A2E', padding: isMobile ? '0.5rem' : '0.75rem', borderRadius: '12px', color: '#FFF' }}>
+          <Users size={isMobile ? 20 : 28} />
         </div>
-        <h1 style={{ fontSize: '2.4rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>Flag Content</h1>
+        <h1 style={{ fontSize: isMobile ? '1.4rem' : '2.4rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>Flag Content</h1>
       </header>
 
-      <hr style={{ border: 'none', borderTop: '1.5px solid #F0F4F5', marginBottom: '2rem' }} />
+      <hr style={{ border: 'none', borderTop: '1.5px solid #F0F4F5', marginBottom: isMobile ? '1rem' : '2rem' }} />
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>Review User Report</h2>
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'stretch' : 'center', gap: isMobile ? '0.75rem' : '0', marginBottom: isMobile ? '1rem' : '2rem' }}>
+        <h2 style={{ fontSize: isMobile ? '1.1rem' : '1.8rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>Review User Report</h2>
         
         <div style={{ position: 'relative' }}>
           <div style={{ 
             display: 'flex', alignItems: 'center', 
             border: '1.5px solid #E0E4E6', borderRadius: '12px', 
-            backgroundColor: '#FFF', padding: '0 1rem', width: '380px'
+            backgroundColor: '#FFF', padding: '0 1rem', width: isMobile ? '100%' : '380px', boxSizing: 'border-box'
           }}>
             <input
               type="text"
@@ -245,30 +252,18 @@ const FlagContent = () => {
 
       <div style={{
         backgroundColor: '#FFFFFF',
-        borderRadius: '24px',
+        borderRadius: isMobile ? '16px' : '24px',
         border: '1.5px solid #E0E4E6',
         overflow: 'hidden',
         boxShadow: '0 10px 30px rgba(0,0,0,0.05)'
       }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#F4F7F8', borderBottom: '1.5px solid #E0E4E6' }}>
-              <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>User</th>
-              <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Date</th>
-              <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Status</th>
-              <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Report</th>
-              <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800', textAlign: 'center' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        {isMobile ? (
+          /* Mobile card layout */
+          <div>
             {loading ? (
-              <tr>
-                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#6B7280' }}>Loading reported content...</td>
-              </tr>
+              <div style={{ padding: '2rem', textAlign: 'center', color: '#6B7280' }}>Loading...</div>
             ) : reports.length === 0 ? (
-              <tr>
-                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#6B7280' }}>No flagged content found.</td>
-              </tr>
+              <div style={{ padding: '2rem', textAlign: 'center', color: '#6B7280' }}>No flagged content found.</div>
             ) : (
               reports
                 .filter((report) => {
@@ -277,64 +272,84 @@ const FlagContent = () => {
                   const reporter = report.reporter?.fullName || report.reporter?.alias || '';
                   const postTitle = report.post?.title || '';
                   const reason = report.reason || '';
-                  return reporter.toLowerCase().includes(query)
-                    || postTitle.toLowerCase().includes(query)
-                    || reason.toLowerCase().includes(query);
+                  return reporter.toLowerCase().includes(query) || postTitle.toLowerCase().includes(query) || reason.toLowerCase().includes(query);
                 })
-                .map((report) => {
+                .map((report, i) => {
                   const reporterName = report.reporter?.fullName || report.reporter?.alias || 'Unknown reporter';
                   const reportDate = report.createdAt ? new Date(report.createdAt).toLocaleDateString() : '-';
                   return (
-                    <tr key={report.id} style={{ borderBottom: '1px solid #F0F4F5' }}>
-                      <td style={{ padding: '1rem 1.5rem', color: '#1A1A2E', fontWeight: '600' }}>{report.post?.title || reporterName}</td>
-                      <td style={{ padding: '1rem 1.5rem', color: '#1A1A2E', fontWeight: '600' }}>{reportDate}</td>
-                      <td style={{ padding: '1rem 1.5rem' }}>
+                    <div key={report.id} style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #F0F4F5' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <span style={{ fontWeight: '700', color: '#1A1A2E', fontSize: '0.9rem' }}>{report.post?.title || reporterName}</span>
+                        <span style={{ color: '#8E9DA1', fontSize: '0.75rem', fontWeight: '600' }}>{reportDate}</span>
+                      </div>
+                      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.8rem', color: '#555', fontWeight: '500' }}>{report.reason}</p>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{
-                          padding: '0.4rem 1.5rem',
-                          borderRadius: '100px',
-                          fontSize: '0.85rem',
-                          fontWeight: '800',
-                          display: 'inline-block',
-                          textAlign: 'center',
-                          minWidth: '120px',
+                          padding: '0.25rem 0.75rem', borderRadius: '100px', fontSize: '0.7rem', fontWeight: '700',
                           ...getStatusStyle(report.status)
-                        }}>
-                          {report.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: '1rem 1.5rem', color: '#1A1A2E', fontWeight: '600' }}>{report.reason}</td>
-                      <td style={{ padding: '1rem 1.5rem' }}>
-                        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-                          <button
-                            onClick={() => openSuspend(report)}
-                            style={{
-                              background: 'none', border: '2px solid #000',
-                              padding: '0.4rem', borderRadius: '8px',
-                              cursor: 'pointer', color: '#EF5350',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center'
-                            }}
-                          >
-                            <Trash2 size={20} />
-                          </button>
-                          <button
-                            onClick={() => openViolation(report)}
-                            style={{
-                              background: 'none', border: '2px solid #000',
-                              padding: '0.4rem', borderRadius: '8px',
-                              cursor: 'pointer', color: '#00BCD4',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center'
-                            }}
-                          >
-                            <Eye size={20} />
-                          </button>
+                        }}>{report.status}</span>
+                        <div style={{ display: 'flex', gap: '0.4rem' }}>
+                          <button onClick={() => openViolation(report)} style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: '#00BCD4', display: 'flex' }}><Eye size={16} /></button>
+                          <button onClick={() => openSuspend(report)} style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: '#EF5350', display: 'flex' }}><Trash2 size={16} /></button>
                         </div>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   );
                 })
             )}
-          </tbody>
-        </table>
+          </div>
+        ) : (
+          /* Desktop table */
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#F4F7F8', borderBottom: '1.5px solid #E0E4E6' }}>
+                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>User</th>
+                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Date</th>
+                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Status</th>
+                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800' }}>Report</th>
+                <th style={{ padding: '1.25rem 1.5rem', color: '#1A1A2E', fontWeight: '800', textAlign: 'center' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#6B7280' }}>Loading reported content...</td></tr>
+              ) : reports.length === 0 ? (
+                <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#6B7280' }}>No flagged content found.</td></tr>
+              ) : (
+                reports
+                  .filter((report) => {
+                    if (!searchQuery.trim()) return true;
+                    const query = searchQuery.toLowerCase();
+                    const reporter = report.reporter?.fullName || report.reporter?.alias || '';
+                    const postTitle = report.post?.title || '';
+                    const reason = report.reason || '';
+                    return reporter.toLowerCase().includes(query) || postTitle.toLowerCase().includes(query) || reason.toLowerCase().includes(query);
+                  })
+                  .map((report) => {
+                    const reporterName = report.reporter?.fullName || report.reporter?.alias || 'Unknown reporter';
+                    const reportDate = report.createdAt ? new Date(report.createdAt).toLocaleDateString() : '-';
+                    return (
+                      <tr key={report.id} style={{ borderBottom: '1px solid #F0F4F5' }}>
+                        <td style={{ padding: '1rem 1.5rem', color: '#1A1A2E', fontWeight: '600' }}>{report.post?.title || reporterName}</td>
+                        <td style={{ padding: '1rem 1.5rem', color: '#1A1A2E', fontWeight: '600' }}>{reportDate}</td>
+                        <td style={{ padding: '1rem 1.5rem' }}>
+                          <span style={{ padding: '0.4rem 1.5rem', borderRadius: '100px', fontSize: '0.85rem', fontWeight: '800', display: 'inline-block', textAlign: 'center', minWidth: '120px', ...getStatusStyle(report.status) }}>{report.status}</span>
+                        </td>
+                        <td style={{ padding: '1rem 1.5rem', color: '#1A1A2E', fontWeight: '600' }}>{report.reason}</td>
+                        <td style={{ padding: '1rem 1.5rem' }}>
+                          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                            <button onClick={() => openSuspend(report)} style={{ background: 'none', border: '2px solid #000', padding: '0.4rem', borderRadius: '8px', cursor: 'pointer', color: '#EF5350', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={20} /></button>
+                            <button onClick={() => openViolation(report)} style={{ background: 'none', border: '2px solid #000', padding: '0.4rem', borderRadius: '8px', cursor: 'pointer', color: '#00BCD4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Eye size={20} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <ViolationModal isOpen={isViolationOpen} report={selectedReport} onClose={() => setIsViolationOpen(false)} />

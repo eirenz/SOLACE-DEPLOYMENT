@@ -216,6 +216,13 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [showAllHighPriority, setShowAllHighPriority] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -246,21 +253,21 @@ const AdminDashboard = () => {
   const trend = data.trend || [];
 
   return (
-    <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-      <header style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '2.5rem' }}>
-        <div style={{ backgroundColor: '#1A1A2E', padding: '0.75rem', borderRadius: '12px', color: '#FFF' }}>
-          <LayoutGrid size={28} />
+    <div style={{ animation: 'fadeIn 0.5s ease-out', paddingBottom: isMobile ? '5rem' : '0' }}>
+      <header style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1.25rem', marginBottom: isMobile ? '1.5rem' : '2.5rem' }}>
+        <div style={{ backgroundColor: '#1A1A2E', padding: isMobile ? '0.5rem' : '0.75rem', borderRadius: '12px', color: '#FFF' }}>
+          <LayoutGrid size={isMobile ? 20 : 28} />
         </div>
-        <h1 style={{ fontSize: '2.4rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>Dashboard</h1>
+        <h1 style={{ fontSize: isMobile ? '1.4rem' : '2.4rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>Dashboard</h1>
       </header>
 
       {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? '0.75rem' : '1.5rem', marginBottom: isMobile ? '1.5rem' : '2.5rem' }}>
         {stats.map((stat, i) => (
           <div key={i} style={{
             backgroundColor: '#FFFFFF',
-            padding: '1.5rem 2rem',
-            borderRadius: '24px',
+            padding: isMobile ? '1rem' : '1.5rem 2rem',
+            borderRadius: isMobile ? '16px' : '24px',
             border: '1.5px solid #E0E4E6',
             display: 'flex',
             justifyContent: 'space-between',
@@ -269,17 +276,17 @@ const AdminDashboard = () => {
             position: 'relative'
           }}>
             <div>
-              <p style={{ margin: '0 0 0.25rem 0', color: '#1A1A2E', fontWeight: '700', fontSize: '0.9rem' }}>{stat.label}</p>
-              <h3 style={{ margin: 0, fontSize: '2.2rem', fontWeight: '800', color: '#1A1A2E' }}>{stat.value}</h3>
+              <p style={{ margin: '0 0 0.25rem 0', color: '#1A1A2E', fontWeight: '700', fontSize: isMobile ? '0.7rem' : '0.9rem' }}>{stat.label}</p>
+              <h3 style={{ margin: 0, fontSize: isMobile ? '1.5rem' : '2.2rem', fontWeight: '800', color: '#1A1A2E' }}>{stat.value}</h3>
             </div>
-            <div style={{ backgroundColor: '#F4F7F8', padding: '0.8rem', borderRadius: '50%' }}>
-              <stat.icon size={28} color="#1A1A2E" />
+            <div style={{ backgroundColor: '#F4F7F8', padding: isMobile ? '0.5rem' : '0.8rem', borderRadius: '50%' }}>
+              <stat.icon size={isMobile ? 18 : 28} color="#1A1A2E" />
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 0.7fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.3fr 0.7fr', gap: isMobile ? '1.5rem' : '2rem' }}>
         {/* Left Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           

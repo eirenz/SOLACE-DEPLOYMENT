@@ -205,12 +205,32 @@ const MoodHistoryModal = ({ isOpen, user, onClose }) => {
 
 // ─── User Table ────────────────────────────────────────────────────────────────
 
-const UserTable = ({ title, bg, users, onAction }) => (
+const UserTable = ({ title, bg, users, onAction }) => {
+  const isMobileTable = window.innerWidth < 768;
+  return (
   <div style={{ marginTop: '2rem' }}>
-    <h3 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#1A1A2E', marginBottom: '1.5rem' }}>{title}</h3>
-    <div style={{ backgroundColor: '#FFFFFF', borderRadius: '24px', border: '1.5px solid #E0E4E6', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+    <h3 style={{ fontSize: isMobileTable ? '1.2rem' : '1.6rem', fontWeight: '800', color: '#1A1A2E', marginBottom: '1.5rem' }}>{title}</h3>
+    <div style={{ backgroundColor: '#FFFFFF', borderRadius: isMobileTable ? '16px' : '24px', border: '1.5px solid #E0E4E6', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
       {users.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', color: '#8E9DA1', fontWeight: '600' }}>No users in this category</div>
+      ) : isMobileTable ? (
+        <div>
+          {users.map((user, i) => (
+            <div key={user.id || i} style={{ padding: '1rem 1.25rem', borderBottom: i === users.length - 1 ? 'none' : '1px solid #F0F4F5', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <span style={{ fontSize: '1.5rem' }}>{user.latestMood ? MOOD_EMOJI[user.latestMood] : '😶'}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ margin: 0, fontWeight: '700', color: '#1A1A2E', fontSize: '0.9rem' }}>{user.fullName}</p>
+                <p style={{ margin: '0.15rem 0 0 0', color: '#8E9DA1', fontSize: '0.7rem', fontWeight: '500' }}>
+                  {user.streak > 0 ? `${user.streak}d streak` : 'No streak'} · {formatDate(user.lastCheckIn)}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button onClick={() => onAction('calendar', user)} style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: '#EF5350', display: 'flex' }}><Calendar size={16} /></button>
+                <button onClick={() => onAction('message', user)} style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: '#00BCD4', display: 'flex' }}><MessageSquare size={16} /></button>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
@@ -242,7 +262,8 @@ const UserTable = ({ title, bg, users, onAction }) => (
       )}
     </div>
   </div>
-);
+  );
+};
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 
@@ -253,6 +274,13 @@ const AnalysisReports = () => {
   const [monitoringData, setMonitoringData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const load = async () => {
     setLoading(true);
@@ -307,14 +335,14 @@ const AnalysisReports = () => {
   const pctFn = (v) => totalAll === 0 ? 0 : Math.round((v / totalAll) * 100);
 
   return (
-    <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-      <header style={{ marginBottom: '3rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '0.25rem' }}>
-          <div style={{ backgroundColor: '#1A1A2E', padding: '0.6rem', borderRadius: '12px', color: '#FFF' }}>
-            <BarChart3 size={28} />
+    <div style={{ animation: 'fadeIn 0.5s ease-out', paddingBottom: isMobile ? '5rem' : '0' }}>
+      <header style={{ marginBottom: isMobile ? '1.5rem' : '3rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1.25rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+          <div style={{ backgroundColor: '#1A1A2E', padding: isMobile ? '0.4rem' : '0.6rem', borderRadius: '12px', color: '#FFF' }}>
+            <BarChart3 size={isMobile ? 20 : 28} />
           </div>
-          <h1 style={{ fontSize: '2.4rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>User Monitoring</h1>
-          <span style={{ color: '#8E9DA1', fontSize: '1.1rem', fontWeight: '600', marginLeft: '0.5rem' }}>Analysis / Reports</span>
+          <h1 style={{ fontSize: isMobile ? '1.3rem' : '2.4rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>User Monitoring</h1>
+          {!isMobile && <span style={{ color: '#8E9DA1', fontSize: '1.1rem', fontWeight: '600', marginLeft: '0.5rem' }}>Analysis / Reports</span>}
           <button
             onClick={load}
             disabled={loading}
@@ -323,7 +351,7 @@ const AnalysisReports = () => {
             <RefreshCw size={18} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
           </button>
         </div>
-        <p style={{ color: '#8E9DA1', fontSize: '1.1rem', fontWeight: '600', margin: 0 }}>Track user mood trends based on their daily check-ins</p>
+        <p style={{ color: '#8E9DA1', fontSize: isMobile ? '0.8rem' : '1.1rem', fontWeight: '600', margin: 0 }}>Track user mood trends based on their daily check-ins</p>
       </header>
 
       {loading && (
@@ -341,28 +369,37 @@ const AnalysisReports = () => {
       {!loading && !error && (
         <>
           {/* Status Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2.5rem', marginBottom: '4rem' }}>
+          <div style={{
+            display: isMobile ? 'flex' : 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: isMobile ? '0.75rem' : '2.5rem',
+            marginBottom: isMobile ? '2rem' : '4rem',
+            ...(isMobile ? { overflowX: 'auto', paddingBottom: '0.5rem', WebkitOverflowScrolling: 'touch' } : {})
+          }}>
             {priorityStats.map((stat) => (
               <div key={stat.id} style={{
-                backgroundColor: stat.bg, borderRadius: '32px', padding: '2.5rem', textAlign: 'center',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem',
+                backgroundColor: stat.bg, borderRadius: isMobile ? '20px' : '32px',
+                padding: isMobile ? '1.25rem' : '2.5rem', textAlign: 'center',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? '0.5rem' : '1.25rem',
                 border: viewMode === stat.id ? `3px solid ${stat.color}` : '3px solid transparent',
                 transition: 'border 0.2s',
+                ...(isMobile ? { minWidth: '160px', flexShrink: 0 } : {})
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '3.5rem' }}>{stat.emoji}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1.5rem', marginBottom: isMobile ? '0' : '0.5rem' }}>
+                  <span style={{ fontSize: isMobile ? '2rem' : '3.5rem' }}>{stat.emoji}</span>
                   <div style={{ textAlign: 'left' }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                      <h3 style={{ margin: 0, fontSize: '3.5rem', fontWeight: '800', color: '#1A1A2E' }}>{stat.value}</h3>
-                      <p style={{ margin: 0, fontWeight: '700', fontSize: '1.1rem', color: '#1A1A2E', opacity: 0.6 }}>Users</p>
+                      <h3 style={{ margin: 0, fontSize: isMobile ? '2rem' : '3.5rem', fontWeight: '800', color: '#1A1A2E' }}>{stat.value}</h3>
+                      <p style={{ margin: 0, fontWeight: '700', fontSize: isMobile ? '0.75rem' : '1.1rem', color: '#1A1A2E', opacity: 0.6 }}>Users</p>
                     </div>
                   </div>
                 </div>
-                <p style={{ margin: 0, fontWeight: '800', color: '#1A1A2E', fontSize: '1.35rem' }}>{stat.label}</p>
-                <p style={{ margin: 0, fontSize: '0.95rem', color: '#1A1A2E', fontWeight: '700', opacity: 0.7 }}>{stat.sub}</p>
+                <p style={{ margin: 0, fontWeight: '800', color: '#1A1A2E', fontSize: isMobile ? '0.85rem' : '1.35rem' }}>{stat.label}</p>
+                <p style={{ margin: 0, fontSize: isMobile ? '0.65rem' : '0.95rem', color: '#1A1A2E', fontWeight: '700', opacity: 0.7 }}>{stat.sub}</p>
                 <button onClick={() => setViewMode(stat.id)} style={{
-                  marginTop: '0.5rem', backgroundColor: '#FFFFFF', border: 'none', borderRadius: '100px',
-                  padding: '0.6rem 2.5rem', fontSize: '1rem', fontWeight: '800', color: '#8E9DA1', cursor: 'pointer',
+                  marginTop: '0.25rem', backgroundColor: '#FFFFFF', border: 'none', borderRadius: '100px',
+                  padding: isMobile ? '0.4rem 1.5rem' : '0.6rem 2.5rem', fontSize: isMobile ? '0.8rem' : '1rem', fontWeight: '800', color: '#8E9DA1', cursor: 'pointer',
                   boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
                 }}>View list</button>
               </div>
@@ -370,7 +407,7 @@ const AnalysisReports = () => {
           </div>
 
           {viewMode === 'dashboard' ? (
-            <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr', gap: '3rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.8fr 1.2fr', gap: isMobile ? '1.5rem' : '3rem' }}>
               {/* Emotional Trend Chart */}
               <div style={{ backgroundColor: '#FFFFFF', borderRadius: '40px', border: '1.5px solid #E0E4E6', padding: '2.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>

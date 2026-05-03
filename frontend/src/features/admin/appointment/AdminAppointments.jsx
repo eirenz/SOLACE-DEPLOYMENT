@@ -76,6 +76,13 @@ const AdminAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [stats, setStats] = useState({ today: 0, upcoming: 0, completed: 0, total: 0 });
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const loadData = async () => {
     try {
@@ -135,41 +142,41 @@ const AdminAppointments = () => {
   const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   return (
-    <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-      <header style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Calendar size={32} color="#1A1A2E" />
-          <h1 style={{ fontSize: '2.2rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>Appointments</h1>
+    <div style={{ animation: 'fadeIn 0.5s ease-out', paddingBottom: isMobile ? '5rem' : '0' }}>
+      <header style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1rem', marginBottom: isMobile ? '1rem' : '2rem', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.5rem' : '1rem' }}>
+          <Calendar size={isMobile ? 22 : 32} color="#1A1A2E" />
+          <h1 style={{ fontSize: isMobile ? '1.4rem' : '2.2rem', fontWeight: '800', color: '#1A1A2E', margin: 0 }}>Appointments</h1>
         </div>
-        <button onClick={loadData} style={{ background: 'none', border: '1.5px solid #E0E4E6', cursor: 'pointer', color: '#8E9DA1', padding: '0.5rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: '700' }}>
-          <RefreshCw size={16} /> Refresh
+        <button onClick={loadData} style={{ background: 'none', border: '1.5px solid #E0E4E6', cursor: 'pointer', color: '#8E9DA1', padding: isMobile ? '0.4rem 0.75rem' : '0.5rem 1rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: isMobile ? '0.75rem' : '0.85rem', fontWeight: '700' }}>
+          <RefreshCw size={isMobile ? 14 : 16} /> Refresh
         </button>
       </header>
 
       <hr style={{ border: 'none', borderTop: '1.5px solid #F0F4F5', marginBottom: '2.5rem' }} />
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? '0.75rem' : '1.5rem', marginBottom: isMobile ? '1.5rem' : '3rem' }}>
         {statCards.map((stat, index) => (
-          <div key={index} style={{ backgroundColor: '#FFFFFF', padding: '2rem 1.5rem', borderRadius: '24px', border: '1.5px solid #E0E4E6', textAlign: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
-            <p style={{ margin: '0 0 0.75rem 0', color: '#1A1A2E', fontWeight: '800', fontSize: '1rem' }}>{stat.label}</p>
-            <h3 style={{ margin: 0, fontSize: '2.5rem', fontWeight: '800', color: '#1A1A2E' }}>{loading ? '—' : stat.value}</h3>
+          <div key={index} style={{ backgroundColor: '#FFFFFF', padding: isMobile ? '1rem' : '2rem 1.5rem', borderRadius: isMobile ? '16px' : '24px', border: '1.5px solid #E0E4E6', textAlign: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+            <p style={{ margin: '0 0 0.5rem 0', color: '#1A1A2E', fontWeight: '800', fontSize: isMobile ? '0.8rem' : '1rem' }}>{stat.label}</p>
+            <h3 style={{ margin: 0, fontSize: isMobile ? '1.8rem' : '2.5rem', fontWeight: '800', color: '#1A1A2E' }}>{loading ? '—' : stat.value}</h3>
           </div>
         ))}
       </div>
 
       {/* Filter + Search */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', gap: '2rem' }}>
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: isMobile ? 'stretch' : 'center', gap: isMobile ? '1rem' : '0', marginBottom: isMobile ? '1.5rem' : '2.5rem' }}>
+        <div style={{ display: 'flex', gap: isMobile ? '1rem' : '2rem' }}>
           {tabs.map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
-              style={{ background: 'none', border: 'none', fontSize: '1rem', fontWeight: activeTab === tab ? '800' : '600', color: activeTab === tab ? '#1A1A2E' : '#8E9DA1', cursor: 'pointer', padding: '0.5rem 0', position: 'relative' }}>
+              style={{ background: 'none', border: 'none', fontSize: isMobile ? '0.85rem' : '1rem', fontWeight: activeTab === tab ? '800' : '600', color: activeTab === tab ? '#1A1A2E' : '#8E9DA1', cursor: 'pointer', padding: '0.5rem 0', position: 'relative' }}>
               {tab}
               {activeTab === tab && <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '3px', backgroundColor: '#1A1A2E', borderRadius: '10px' }} />}
             </button>
           ))}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #E0E4E6', borderRadius: '100px', backgroundColor: '#FFF', padding: '0 1.25rem', width: '320px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #E0E4E6', borderRadius: '100px', backgroundColor: '#FFF', padding: '0 1.25rem', width: isMobile ? '100%' : '320px', boxSizing: 'border-box' }}>
           <input type="text" placeholder="Search Appointments" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
             style={{ padding: '0.6rem 0', border: 'none', flex: 1, fontSize: '0.9rem', outline: 'none' }} />
           <Search size={18} color="#8E9DA1" />
@@ -182,7 +189,7 @@ const AdminAppointments = () => {
       ) : filteredAppointments.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '4rem', color: '#8E9DA1', fontWeight: '600' }}>No appointments found</div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '1rem' : '2rem' }}>
           {filteredAppointments.map(apt => (
             <div key={apt.id} style={{ backgroundColor: '#FFFFFF', borderRadius: '24px', border: '1.5px solid #E0E4E6', overflow: 'hidden', boxShadow: '0 10px 40px rgba(0,0,0,0.06)' }}>
               <div style={{ padding: '1.5rem' }}>

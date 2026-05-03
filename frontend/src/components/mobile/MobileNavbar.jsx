@@ -34,7 +34,7 @@ const MobileNavbar = ({ onMenuClick }) => {
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
+      if (notifRef.current && !notifRef.current.contains(e.target) && !e.target.closest('.m-notif-dropdown')) {
         closeDropdown();
       }
     };

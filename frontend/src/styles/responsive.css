@@ -1,0 +1,79 @@
+/* Mobile Responsiveness Utilities */
+
+:root {
+  --mobile-breakpoint: 480px;
+  --tablet-breakpoint: 768px;
+}
+
+@media (max-width: 768px) {
+  .mobile-hide {
+    display: none !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .mobile-padding-sm {
+    padding: 1rem !important;
+  }
+
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-font-sm {
+    font-size: 0.85rem !important;
+  }
+  
+  .mobile-font-md {
+    font-size: 1rem !important;
+  }
+
+  .mobile-font-lg {
+    font-size: 1.25rem !important;
+  }
+  
+  .mobile-heading-xl {
+    font-size: 2rem !important;
+  }
+
+  /* Sticky Bottom Nav Spacer */
+  .mobile-nav-spacer {
+    height: 80px !important;
+  }
+}
+
+@keyframes bounceRight {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50% { transform: translateY(-50%) translateX(10px); }
+}
+
+.scroll-hint {
+  animation: bounceRight 1.5s infinite;
+}
+
+/* ---- Mobile Shell Responsive Overrides ---- */
+@media (max-width: 768px) {
+  /* Ensure desktop sidebars/navbars don't peek through */
+  .mobile-shell * {
+    scrollbar-width: thin;
+    scrollbar-color: #bfc8c8 transparent;
+  }
+
+  .mobile-shell *::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .mobile-shell *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .mobile-shell *::-webkit-scrollbar-thumb {
+    background-color: #bfc8c8;
+    border-radius: 9999px;
+  }
+}

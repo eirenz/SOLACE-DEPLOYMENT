@@ -1,0 +1,526 @@
+/* ============================================
+   MOBILE DESIGN SYSTEM — Solace
+   Inspired by the MOBILE UI INSPIRATION folder
+   All styles scoped under .mobile-shell
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+/* ---- Mobile Design Tokens ---- */
+.mobile-shell {
+  --m-primary: #2d6465;
+  --m-primary-dark: #064E3B;
+  --m-primary-container: #477d7d;
+  --m-on-primary: #ffffff;
+  --m-surface: #f8faf9;
+  --m-surface-container: #edeeed;
+  --m-surface-container-low: #f3f4f3;
+  --m-on-surface: #191c1c;
+  --m-on-surface-variant: #404848;
+  --m-outline: #707978;
+  --m-outline-variant: #bfc8c8;
+  --m-inverse-surface: #2e3131;
+  --m-error: #ba1a1a;
+  --m-error-container: #ffdad6;
+  --m-secondary: #5b5f5f;
+  --m-tertiary: #525c6f;
+
+  --m-font: 'Manrope', 'Inter', system-ui, -apple-system, sans-serif;
+  --m-radius-sm: 0.5rem;
+  --m-radius-md: 0.75rem;
+  --m-radius-lg: 1rem;
+  --m-radius-xl: 1.5rem;
+  --m-radius-full: 9999px;
+
+  --m-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --m-shadow-nav: 0 -4px 16px rgba(0, 0, 0, 0.04);
+  --m-shadow-header: 0 2px 12px rgba(0, 0, 0, 0.02);
+  --m-shadow-elevated: 0 12px 40px rgba(0, 0, 0, 0.12);
+
+  --m-header-height: 64px;
+  --m-bottom-nav-height: 84px; /* Dynamic height override to prevent overlap */
+
+  font-family: var(--m-font);
+  background-color: var(--m-surface);
+  background-image: none !important;
+  background: var(--m-surface) !important;
+  color: var(--m-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Mobile Header ---- */
+.mobile-shell .m-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--m-header-height);
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  z-index: 1000;
+  box-shadow: var(--m-shadow-header);
+  border-bottom: 1px solid var(--m-surface-container);
+}
+
+.mobile-shell .m-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mobile-shell .m-header__avatar,
+.mobile-shell .m-header__avatar-fallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--m-primary);
+  flex-shrink: 0;
+}
+
+.mobile-shell .m-header__avatar-fallback {
+  background-color: var(--m-surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: var(--m-primary);
+}
+
+.mobile-shell .m-header__title {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: var(--m-primary);
+  margin: 0 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.mobile-shell .m-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mobile-shell .m-header__icon-btn {
+  color: var(--m-primary);
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.mobile-shell .m-header__icon-btn:active {
+  background-color: var(--m-surface-container);
+}
+
+.mobile-shell .m-header__badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  background-color: var(--m-error);
+  border-radius: var(--m-radius-full);
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: #fff;
+  font-weight: 800;
+  padding: 0 3px;
+  line-height: 1;
+}
+
+/* ---- Mobile Bottom Navigation ---- */
+.mobile-shell .m-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  min-height: 76px; /* Slightly taller for modern feel */
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  padding: 0 0.5rem;
+  z-index: 1000;
+  box-shadow: 0px -4px 20px rgba(0,0,0,0.05);
+  border-top: 1px solid var(--m-surface-container);
+  padding-top: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.mobile-shell .m-bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  flex: 1;
+  transition: all 0.2s ease;
+  height: auto;
+  position: relative;
+  min-width: 0; /* Prevent flex-overflow */
+}
+
+.mobile-shell .m-bottom-nav__item--active {
+  color: var(--m-primary);
+}
+
+.mobile-shell .m-bottom-nav__icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 32px; /* Increased and locked height */
+  border-radius: 16px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+  margin-bottom: 4px; /* Fixed gap instead of flex gap for better baseline control */
+}
+
+.mobile-shell .m-bottom-nav__item--active .m-bottom-nav__icon-wrapper {
+  background-color: rgba(45, 100, 101, 0.12);
+  width: 56px;
+}
+
+.mobile-shell .m-bottom-nav__label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+/* ---- Mobile Content Area & Global Component Overrides ---- */
+.mobile-shell .m-content {
+  position: relative;
+  flex: 1;
+  margin-top: var(--m-header-height);
+  margin-bottom: var(--m-bottom-nav-height);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.25rem;
+  background-color: var(--m-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Force mobile feel on existing dashboard and pages */
+.mobile-shell * {
+  font-family: var(--m-font) !important;
+}
+
+/* Fix for large titles on dashboard */
+.mobile-shell h1, 
+.mobile-shell [style*="font-size: 3rem"] {
+  font-size: 2rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.1 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.mobile-shell [style*="font-size: 1.5rem"] {
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+}
+
+/* Reset large desktop paddings - less aggressive */
+.mobile-shell .m-content > div {
+  padding: 0;
+  width: 100%;
+}
+
+/* Fix grid layouts for mobile stack */
+.mobile-shell [style*="display: grid"] {
+  grid-template-columns: 1fr !important;
+  gap: 1rem !important;
+}
+
+/* Handle 2-column grid for small cards if possible, or just stack */
+.mobile-shell div[style*="repeat(4, 1fr)"] {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important; /* 2 columns is better for small cards */
+}
+
+/* Fix emoji grid which should retain 3 columns on mobile */
+.mobile-shell div[style*="repeat(3, 1fr)"] {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 0.5rem !important;
+}
+
+/* Fix calendar 7-column grid which was being overridden by the 1fr rule */
+.mobile-shell div[style*="repeat(7, 1fr)"] {
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 0.5rem !important;
+}
+
+/* Mobile Cards Styling Override */
+.mobile-shell .m-card,
+.mobile-shell [style*="border-radius: 32px"],
+.mobile-shell [style*="border-radius: 24px"] {
+  padding: 1.25rem !important;
+  border-radius: 20px !important;
+  border: none !important;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.04) !important;
+  margin-bottom: 1rem !important;
+  background-color: #ffffff; /* Default to white, but NO !important */
+}
+
+/* Bento card classes for dashboard */
+.mobile-shell .bento-card {
+  background-color: #ffffff;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  border: none;
+}
+.mobile-shell .bento-card:active {
+  transform: scale(0.98);
+}
+
+/* Explicitly dark/primary cards should NEVER be white-washed */
+.mobile-shell .m-dark-card,
+.mobile-shell [style*="background-color: #064E3B"],
+.mobile-shell [style*="background-color: #2d6465"],
+.mobile-shell [style*="background-color: var(--m-primary)"] {
+  background-color: inherit !important;
+  color: #ffffff !important;
+}
+
+/* Fix for containers that should stay primary teal */
+.mobile-shell .m-primary-bg {
+  background-color: var(--m-primary) !important;
+  background: var(--m-primary) !important;
+  color: #ffffff !important;
+}
+
+/* Daily Quote (dark card) fix */
+.mobile-shell [style*="background-color: #2d6465"],
+.mobile-shell [style*="background-color: #064E3B"] {
+  background-color: var(--m-primary) !important;
+  color: #ffffff !important;
+}
+
+/* Emojis sizing on dashboard */
+.mobile-shell [style*="width: 60px"][style*="height: 60px"] {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 14px !important;
+  font-size: 1.75rem !important;
+}
+
+/* Button mobile feel */
+.mobile-shell button {
+  font-family: var(--m-font) !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* ---- Mobile Drawer ---- */
+.mobile-shell .m-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(25, 28, 28, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 2000;
+  animation: m-fade-in 0.2s ease-out;
+}
+
+.mobile-shell .m-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 280px;
+  background-color: #ffffff;
+  z-index: 2001;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--m-shadow-elevated);
+  animation: m-slide-in-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-shell .m-drawer__header {
+  padding: 2rem 1.5rem 1.5rem;
+  border-bottom: 1px solid var(--m-surface-container);
+}
+
+.mobile-shell .m-drawer__user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-shell .m-drawer__user-name {
+  font-size: 1.1rem !important;
+  font-weight: 800 !important;
+  color: var(--m-on-surface);
+  margin: 0 !important;
+}
+
+.mobile-shell .m-drawer__user-role {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  color: var(--m-outline);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mobile-shell .m-drawer__nav {
+  flex: 1;
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow-y: auto;
+}
+
+.mobile-shell .m-drawer__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--m-radius-md);
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--m-on-surface-variant);
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.mobile-shell .m-drawer__nav-item:active {
+  background-color: var(--m-surface-container);
+}
+
+.mobile-shell .m-drawer__nav-item--active {
+  background-color: rgba(45, 100, 101, 0.08);
+  color: var(--m-primary);
+  font-weight: 700;
+}
+
+.mobile-shell .m-drawer__footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--m-surface-container);
+}
+
+.mobile-shell .m-drawer__logout {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--m-radius-md);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--m-error);
+  width: 100%;
+  text-align: left;
+  transition: background-color 0.2s;
+}
+
+.mobile-shell .m-drawer__logout:active {
+  background-color: var(--m-error-container);
+}
+
+/* ---- Notification Dropdown (Mobile) ---- */
+.mobile-shell .m-notif-dropdown {
+  position: fixed;
+  top: var(--m-header-height);
+  left: 0;
+  right: 0;
+  max-height: 70vh;
+  background-color: #ffffff;
+  box-shadow: var(--m-shadow-elevated);
+  z-index: 1100;
+  animation: m-slide-down 0.25s ease-out;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-shell .m-notif-dropdown__header {
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--m-surface-container);
+  flex-shrink: 0;
+}
+
+.mobile-shell .m-notif-dropdown__list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.mobile-shell .m-notif-dropdown__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--m-surface-container-low);
+  transition: background 0.15s;
+}
+
+.mobile-shell .m-notif-dropdown__item:active {
+  background-color: var(--m-surface-container);
+}
+
+.mobile-shell .m-notif-dropdown__item--unread {
+  background-color: rgba(45, 100, 101, 0.04);
+}
+
+/* ---- Animations ---- */
+@keyframes m-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes m-slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes m-slide-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes m-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mobile-shell .m-animate-in {
+  animation: m-slide-up 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Override body gradient when mobile layout is active */
+body.is-mobile-view {
+  background: #f8faf9 !important;
+  background-image: none !important;
+  overflow-x: hidden;
+}

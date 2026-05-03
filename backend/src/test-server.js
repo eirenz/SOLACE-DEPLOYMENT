@@ -1,0 +1,10 @@
+const express = require('express');
+const app = express();
+const PORT = 5001;
+
+app.get('/', (req, res) => res.send('OK'));
+
+app.listen(PORT, () => {
+  console.log(`Test server running on ${PORT}`);
+  // We want to see if this stays alive
+});

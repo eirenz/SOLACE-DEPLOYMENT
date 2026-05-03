@@ -1,0 +1,263 @@
+// Prisma schema for Project SOLACE
+// Mental Health Tracking & Counseling Platform
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────
+
+enum Role {
+  STUDENT
+  COUNSELOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+enum Mood {
+  HAPPY
+  SAD
+  NEUTRAL
+  STRESSED
+  ANGRY
+}
+
+enum AppointmentMode {
+  LISTEN_ONLY
+  ADVICE_RECOVERY
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum ChatSessionStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+}
+
+enum VentStatus {
+  UNREAD
+  READ
+  REACTED
+}
+
+// ─── Models ───────────────────────────────────────────
+
+model User {
+  id           String     @id @default(uuid())
+  fullName     String
+  email        String     @unique
+  passwordHash String
+  role         Role       @default(STUDENT)
+  alias        String? // Generated pseudonym for anonymous bookings
+  status       UserStatus @default(ACTIVE)
+  avatarUrl    String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Password reset
+  resetOtp       String?
+  resetOtpExpiry DateTime?
+
+  // Relationships
+  counselorProfile CounselorProfile?
+  moodCheckins     MoodCheckin[]
+  journalEntries   JournalEntry[]
+  communityPosts   CommunityPost[]   @relation("PostAuthor")
+  postLikes        PostLike[]
+  postReplies      PostReply[]
+  postReports      PostReport[]
+
+  // As student
+  studentAppointments Appointment[] @relation("StudentAppointments")
+  ventMessages        VentMessage[] @relation("StudentVents")
+  studentChatSessions ChatSession[] @relation("StudentChats")
+  sentMessages        ChatMessage[]
+
+  // As counselor
+  counselorAppointments Appointment[] @relation("CounselorAppointments")
+  counselorVents        VentMessage[] @relation("CounselorVents")
+  counselorChatSessions ChatSession[] @relation("CounselorChats")
+
+  @@map("users")
+}
+
+model CounselorProfile {
+  id             String  @id @default(uuid())
+  userId         String  @unique
+  employeeId     String?
+  workPhone      String?
+  license        String?
+  specialization String?
+  officeLocation String?
+  experience     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("counselor_profiles")
+}
+
+model MoodCheckin {
+  id        String   @id @default(uuid())
+  userId    String
+  mood      Mood
+  quote     String?
+  tasks     String[] // Array of task descriptions
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("mood_checkins")
+}
+
+model JournalEntry {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  content   String
+  mood      Mood     @default(NEUTRAL)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("journal_entries")
+}
+
+model CommunityPost {
+  id         String   @id @default(uuid())
+  authorId   String
+  title      String
+  content    String
+  tags       String[]
+  isReported Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  author  User         @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  likes   PostLike[]
+  replies PostReply[]
+  reports PostReport[]
+
+  @@map("community_posts")
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId]) // One like per user per post
+  @@map("post_likes")
+}
+
+model PostReply {
+  id        String   @id @default(uuid())
+  postId    String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  post   CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("post_replies")
+}
+
+model PostReport {
+  id         String       @id @default(uuid())
+  postId     String
+  reporterId String
+  reason     String
+  status     ReportStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+
+  post     CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reporter User          @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@map("post_reports")
+}
+
+model Appointment {
+  id          String            @id @default(uuid())
+  studentId   String
+  counselorId String
+  alias       String // Student's pseudonym for this appointment
+  date        DateTime
+  timeSlot    String // e.g. "9:30 AM"
+  mode        AppointmentMode
+  status      AppointmentStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime          @default(now())
+
+  student   User @relation("StudentAppointments", fields: [studentId], references: [id], onDelete: Cascade)
+  counselor User @relation("CounselorAppointments", fields: [counselorId], references: [id], onDelete: Cascade)
+
+  @@map("appointments")
+}
+
+model VentMessage {
+  id          String     @id @default(uuid())
+  studentId   String
+  counselorId String? // Assigned counselor (null if unassigned)
+  content     String
+  reactions   String[] // Array of reaction emojis/labels
+  status      VentStatus @default(UNREAD)
+  createdAt   DateTime   @default(now())
+
+  student   User  @relation("StudentVents", fields: [studentId], references: [id], onDelete: Cascade)
+  counselor User? @relation("CounselorVents", fields: [counselorId], references: [id], onDelete: Cascade)
+
+  @@map("vent_messages")
+}
+
+model ChatSession {
+  id          String            @id @default(uuid())
+  studentId   String
+  counselorId String
+  mode        AppointmentMode   @default(ADVICE_RECOVERY)
+  status      ChatSessionStatus @default(ACTIVE)
+  createdAt   DateTime          @default(now())
+
+  student   User          @relation("StudentChats", fields: [studentId], references: [id], onDelete: Cascade)
+  counselor User          @relation("CounselorChats", fields: [counselorId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  sessionId String
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sender  User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}

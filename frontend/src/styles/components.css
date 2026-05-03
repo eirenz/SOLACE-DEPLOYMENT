@@ -1,0 +1,117 @@
+/* src/styles/components.css */
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.5rem;
+  border-radius: 25px; /* Pill shape */
+  font-weight: 700;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  font-family: var(--font-body);
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: #FFFFFF;
+}
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+.btn-secondary:hover {
+  background-color: rgba(0, 188, 212, 0.1);
+}
+
+.btn-danger {
+  background-color: var(--error);
+  color: #FFFFFF;
+}
+
+.btn-full-width {
+  width: 100%;
+}
+
+/* Card */
+.card {
+  background-color: var(--card-bg);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* Softer shadow */
+  padding: 2.5rem 2rem; /* More padding for auth cards */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+}
+
+/* Input */
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.25rem;
+}
+.input-label {
+  font-size: 0.75rem; /* Smaller labels in Figma */
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+.input-field {
+  padding: 0.85rem 1rem;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px; /* Less rounded inputs */
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+  background-color: #FAFAFA;
+}
+.input-field::placeholder {
+  color: #BDBDBD;
+}
+.input-field:focus {
+  border-color: var(--primary);
+  background-color: #FFFFFF;
+}
+.input-error {
+  border-color: var(--error);
+}
+.error-msg {
+  color: var(--error);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Avatar */
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: bold;
+}
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge-teal { background-color: var(--primary-light); color: var(--primary-dark); }
+.badge-orange { background-color: rgba(255, 152, 0, 0.2); color: var(--warning); }
+.badge-purple { background-color: rgba(156, 39, 176, 0.2); color: var(--purple); }
+.badge-green { background-color: rgba(76, 175, 80, 0.2); color: var(--success); }

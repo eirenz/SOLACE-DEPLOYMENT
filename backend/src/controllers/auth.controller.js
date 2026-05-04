@@ -273,74 +273,16 @@ const forgotPassword = async (req, res, next) => {
       },
     });
 
-    console.log(`📧 Attempting to send OTP to: ${email}`);
-    console.log(`🔧 GMAIL_USER defined: ${!!process.env.GMAIL_USER}`);
-    console.log(`🔧 GMAIL_PASS length: ${process.env.GMAIL_PASS?.length || 0}`);
-
-    if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
-      try {
-        const transporter = nodemailer.createTransport({
-          // Hardcoding Google's direct IPv4 to bypass Render's firewall/DNS bugs
-          host: '74.125.142.108', 
-          port: 465,
-          secure: true,
-          auth: {
-            user: process.env.GMAIL_USER,
-            pass: process.env.GMAIL_PASS,
-          },
-          debug: true,
-          logger: true,
-          connectionTimeout: 20000, // 20s
-          greetingTimeout: 20000,
-          socketTimeout: 20000,
-          tls: {
-            servername: 'smtp.gmail.com',
-            rejectUnauthorized: false
-          }
-        });
-
-        // Verify connection configuration
-        transporter.verify(function (error, success) {
-          if (error) {
-            console.error('❌ SMTP Verification Error:', error);
-          } else {
-            console.log('✅ SMTP Server is ready to take our messages');
-          }
-        });
-
-        const mailOptions = {
-          from: `"Solace Support" <${process.env.GMAIL_USER}>`,
-          to: email,
-          subject: 'Your Password Reset Code',
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #E0E0E0; border-radius: 12px;">
-              <h2 style="color: #00BCD4; text-align: center;">Solace Password Reset</h2>
-              <p>Hi there,</p>
-              <p>We received a request to reset your password. Here is your 6-digit verification code:</p>
-              <div style="background-color: #F8FAFB; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #1A1A2E; border-radius: 8px; margin: 20px 0;">
-                ${otp}
-              </div>
-              <p style="color: #666666; font-size: 14px;">This code will expire in 10 minutes. If you did not request this, you can safely ignore this email.</p>
-              <hr style="border: none; border-top: 1px solid #EEEEEE; margin: 20px 0;" />
-              <p style="color: #999999; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} Project Solace</p>
-            </div>
-          `,
-        };
-
-        transporter.sendMail(mailOptions)
-          .then(() => console.log(`✉️ Password reset email sent to ${email}`))
-          .catch((mailError) => {
-            console.error('Failed to send OTP email:', mailError);
-            console.log(`🔑 Password reset OTP for ${email}: ${otp} (Email failed)`);
-          });
-      } catch (setupError) {
-        console.error('Failed to setup nodemailer:', setupError);
-        console.log(`🔑 Password reset OTP for ${email}: ${otp} (Email setup failed)`);
-      }
-    } else {
-      // For development, log it
-      console.log(`🔑 Password reset OTP for ${email}: ${otp} (No GMAIL credentials)`);
-    }
+    // Fallback for demo: Log the OTP to the console instead of sending email
+    // This bypasses Render's SMTP blocks while allowing validation in the logs
+    console.log(`
+    --------------------------------------------------
+    🔑 PASSWORD RESET OTP
+    Email: ${email}
+    Code:  ${otp}
+    (Email transport skipped due to environment blocks)
+    --------------------------------------------------
+    `);
 
     res.json({ message: 'If an account with that email exists, a verification code has been sent.' });
   } catch (error) {

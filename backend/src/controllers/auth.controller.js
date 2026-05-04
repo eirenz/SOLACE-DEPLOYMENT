@@ -280,18 +280,23 @@ const forgotPassword = async (req, res, next) => {
     if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
       try {
         const transporter = nodemailer.createTransport({
-          host: 'smtp.gmail.com',
-          port: 587,
-          secure: false, // TLS
+          // Hardcoding Google's direct IPv4 to bypass Render's firewall/DNS bugs
+          host: '74.125.142.108', 
+          port: 465,
+          secure: true,
           auth: {
             user: process.env.GMAIL_USER,
             pass: process.env.GMAIL_PASS,
           },
           debug: true,
           logger: true,
-          connectionTimeout: 10000, // 10s
-          greetingTimeout: 10000,
-          socketTimeout: 10000,
+          connectionTimeout: 20000, // 20s
+          greetingTimeout: 20000,
+          socketTimeout: 20000,
+          tls: {
+            servername: 'smtp.gmail.com',
+            rejectUnauthorized: false
+          }
         });
 
         // Verify connection configuration

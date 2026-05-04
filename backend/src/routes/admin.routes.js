@@ -14,7 +14,9 @@ const {
   updateReportStatus,
   resolveReportedPost,
   deleteUser,
-  getDashboardStats 
+  getDashboardStats,
+  createCounselor,
+  promoteToCouncelor 
 } = require('../controllers/admin.controller');
 
 // All admin routes require authentication and ADMIN role
@@ -26,7 +28,11 @@ router.get('/dashboard-stats', getDashboardStats);
 // General user management
 router.get('/users', getAllUsers);
 router.patch('/users/:userId/status', updateUserStatus);
+router.patch('/users/:userId/role', promoteToCouncelor);
 router.delete('/users/:userId', deleteUser);
+
+// Counselor management
+router.post('/counselors', createCounselor);
 
 // Report management
 router.get('/reports', getReportedPosts);

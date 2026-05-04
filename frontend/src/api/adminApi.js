@@ -105,3 +105,22 @@ export const fetchDashboardStats = async () => {
   const { data } = await apiClient.get('/admin/dashboard-stats');
   return data;
 };
+
+/**
+ * Create a new counselor account with optional profile fields
+ * @param {{ fullName: string, email: string, password: string, employeeId?: string, workPhone?: string, license?: string, specialization?: string, officeLocation?: string, experience?: string }} payload
+ */
+export const createCounselorAccount = async (payload) => {
+  const { data } = await apiClient.post('/admin/counselors', payload);
+  return data;
+};
+
+/**
+ * Promote/change a user's role (e.g. STUDENT → COUNSELOR)
+ * @param {string} userId
+ * @param {string} role - Currently only 'COUNSELOR' is supported
+ */
+export const promoteUserRole = async (userId, role) => {
+  const { data } = await apiClient.patch(`/admin/users/${userId}/role`, { role });
+  return data;
+};

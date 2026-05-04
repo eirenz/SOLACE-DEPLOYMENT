@@ -1,4 +1,6 @@
 const prisma = require('../config/db');
+const bcrypt = require('bcryptjs');
+const { generateAlias } = require('../utils/aliasGenerator');
 
 const MOOD_SCORES = { HAPPY: 5, NEUTRAL: 4, STRESSED: 3, SAD: 2, ANGRY: 1 };
 const NEGATIVE_MOODS = new Set(['SAD', 'ANGRY', 'STRESSED']);
@@ -643,6 +645,119 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
+/**
+ * POST /api/admin/counselors
+ * Create a brand-new counselor account with profile (ADMIN)
+ * Body: { fullName, email, password, employeeId?, workPhone?, license?, specialization?, officeLocation?, experience? }
+ */
+const createCounselor = async (req, res) => {
+  try {
+    const { fullName, email, password, employeeId, workPhone, license, specialization, officeLocation, experience } = req.body;
+
+    if (!fullName || !email || !password) {
+      return res.status(400).json({ error: 'Full name, email, and password are required' });
+    }
+
+    // Check if email already exists
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(409).json({ error: 'An account with this email already exists' });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+    const alias = generateAlias();
+
+    // Create user + counselor profile in a transaction
+    const user = await prisma.user.create({
+      data: {
+        fullName,
+        email,
+        passwordHash,
+        role: 'COUNSELOR',
+        alias,
+        counselorProfile: {
+          create: {
+            employeeId: employeeId || null,
+            workPhone: workPhone || null,
+            license: license || null,
+            specialization: specialization || null,
+            officeLocation: officeLocation || null,
+            experience: experience || null,
+          },
+        },
+      },
+      include: {
+        counselorProfile: true,
+      },
+    });
+
+    // Remove passwordHash from response
+    const { passwordHash: _, ...userData } = user;
+
+    res.status(201).json({ success: true, user: userData });
+  } catch (error) {
+    console.error('createCounselor error:', error);
+    res.status(500).json({ error: 'Failed to create counselor account' });
+  }
+};
+
+/**
+ * PATCH /api/admin/users/:userId/role
+ * Promote/change a user's role (e.g. STUDENT → COUNSELOR) (ADMIN)
+ * Body: { role } — currently only 'COUNSELOR' is supported
+ */
+const promoteToCouncelor = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    if (role !== 'COUNSELOR') {
+      return res.status(400).json({ error: 'Only promotion to COUNSELOR is supported' });
+    }
+
+    // Verify user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { counselorProfile: true },
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (existingUser.role === 'COUNSELOR') {
+      return res.status(400).json({ error: 'User is already a counselor' });
+    }
+
+    if (existingUser.role === 'ADMIN') {
+      return res.status(400).json({ error: 'Cannot change an admin\'s role' });
+    }
+
+    // Update role and create counselor profile if needed
+    const updateData = { role: 'COUNSELOR' };
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: { id: true, fullName: true, email: true, role: true, status: true },
+    });
+
+    // Create counselor profile if one doesn't exist
+    if (!existingUser.counselorProfile) {
+      await prisma.counselorProfile.create({
+        data: { userId },
+      });
+    }
+
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error('promoteToCouncelor error:', error);
+    res.status(500).json({ error: 'Failed to update user role' });
+  }
+};
+
 module.exports = {
   getAllAppointments,
   getAppointmentStats,
@@ -656,4 +771,6 @@ module.exports = {
   resolveReportedPost,
   deleteUser,
   getDashboardStats,
+  createCounselor,
+  promoteToCouncelor,
 };

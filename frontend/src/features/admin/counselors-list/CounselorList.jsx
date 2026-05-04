@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Trash2, Eye, UserPlus, Users, Info, AlertTriangle, X } from 'lucide-react';
 import Avatar from '../../../components/common/Avatar';
-import { fetchAllUsers, deleteUser } from '../../../api/adminApi';
+import { fetchAllUsers, deleteUser, createCounselorAccount } from '../../../api/adminApi';
 
 // Filter Modal Component
 const FilterModal = ({ isOpen, onClose }) => {
@@ -156,6 +156,131 @@ const DeleteModal = ({ isOpen, counselor, onClose, onConfirm }) => {
   );
 };
 
+// Create Counselor Modal
+const CreateCounselorModal = ({ isOpen, onClose, onCreated }) => {
+  const [form, setForm] = useState({
+    fullName: '', email: '', password: '',
+    employeeId: '', workPhone: '', license: '',
+    specialization: '', officeLocation: '', experience: ''
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const isMobileModal = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  if (!isOpen) return null;
+
+  const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
+
+  const handleSubmit = async () => {
+    if (!form.fullName || !form.email || !form.password) {
+      setError('Full Name, Email, and Password are required.');
+      return;
+    }
+    if (form.password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    try {
+      setSaving(true);
+      setError('');
+      await createCounselorAccount(form);
+      setForm({ fullName: '', email: '', password: '', employeeId: '', workPhone: '', license: '', specialization: '', officeLocation: '', experience: '' });
+      onCreated();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to create counselor');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inputStyle = {
+    width: '100%', padding: '0.75rem 1rem', borderRadius: '12px',
+    border: '1.5px solid #E0E4E6', fontSize: '0.9rem', color: '#1A1A2E',
+    outline: 'none', fontWeight: '500', boxSizing: 'border-box'
+  };
+  const labelStyle = { fontSize: '0.8rem', fontWeight: '700', color: '#1A1A2E', marginBottom: '0.3rem', display: 'block' };
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex',
+      alignItems: 'center', justifyContent: 'center', zIndex: 2000, backdropFilter: 'blur(4px)', padding: '1rem'
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        backgroundColor: '#FFF', borderRadius: isMobileModal ? '20px' : '32px', width: '100%', maxWidth: '560px',
+        padding: isMobileModal ? '1.5rem' : '2.5rem', boxShadow: '0 25px 60px rgba(0,0,0,0.2)', position: 'relative',
+        maxHeight: '90vh', overflowY: 'auto'
+      }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}><X size={22} /></button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+          <div style={{ backgroundColor: '#064E3B', padding: '0.5rem', borderRadius: '12px', color: '#FFF' }}><UserPlus size={22} /></div>
+          <h2 style={{ margin: 0, fontSize: isMobileModal ? '1.2rem' : '1.5rem', fontWeight: '800', color: '#1A1A2E' }}>Create Counselor Account</h2>
+        </div>
+
+        {error && <div style={{ backgroundColor: '#FFEBEE', color: '#C62828', padding: '0.75rem 1rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: '600', marginBottom: '1rem' }}>{error}</div>}
+
+        <div style={{ display: 'grid', gridTemplateColumns: isMobileModal ? '1fr' : '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+          <div style={{ gridColumn: isMobileModal ? '1' : 'span 2' }}>
+            <label style={labelStyle}>Full Name <span style={{ color: '#EF5350' }}>*</span></label>
+            <input type="text" placeholder="e.g. Maria Santos" value={form.fullName} onChange={e => handleChange('fullName', e.target.value)} style={inputStyle} />
+          </div>
+          <div>
+            <label style={labelStyle}>Email <span style={{ color: '#EF5350' }}>*</span></label>
+            <input type="email" placeholder="counselor@solace.edu" value={form.email} onChange={e => handleChange('email', e.target.value)} style={inputStyle} />
+          </div>
+          <div>
+            <label style={labelStyle}>Password <span style={{ color: '#EF5350' }}>*</span></label>
+            <input type="password" placeholder="Min 6 characters" value={form.password} onChange={e => handleChange('password', e.target.value)} style={inputStyle} />
+          </div>
+        </div>
+
+        <div style={{ borderTop: '1.5px solid #F0F4F5', paddingTop: '1.25rem', marginBottom: '1.25rem' }}>
+          <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '800', color: '#8E9DA1' }}>Professional Details (Optional)</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobileModal ? '1fr' : '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={labelStyle}>Employee ID</label>
+              <input type="text" placeholder="EMP-001" value={form.employeeId} onChange={e => handleChange('employeeId', e.target.value)} style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Work Phone</label>
+              <input type="text" placeholder="09XX XXX XXXX" value={form.workPhone} onChange={e => handleChange('workPhone', e.target.value)} style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Specialization</label>
+              <input type="text" placeholder="e.g. Anxiety & Depression" value={form.specialization} onChange={e => handleChange('specialization', e.target.value)} style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>License</label>
+              <input type="text" placeholder="e.g. RPm-0012345" value={form.license} onChange={e => handleChange('license', e.target.value)} style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Office Location</label>
+              <input type="text" placeholder="e.g. Room 201, Guidance Office" value={form.officeLocation} onChange={e => handleChange('officeLocation', e.target.value)} style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Experience</label>
+              <input type="text" placeholder="e.g. 5 years" value={form.experience} onChange={e => handleChange('experience', e.target.value)} style={inputStyle} />
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+          <button onClick={onClose} style={{
+            padding: '0.75rem 1.75rem', backgroundColor: '#F4F7F8', border: '1.5px solid #E0E4E6',
+            borderRadius: '12px', fontWeight: '700', cursor: 'pointer', color: '#1A1A2E', fontSize: '0.9rem'
+          }}>Cancel</button>
+          <button onClick={handleSubmit} disabled={saving} style={{
+            padding: '0.75rem 1.75rem', backgroundColor: '#064E3B', color: '#FFF', border: 'none',
+            borderRadius: '12px', fontWeight: '800', cursor: saving ? 'not-allowed' : 'pointer',
+            fontSize: '0.9rem', opacity: saving ? 0.7 : 1
+          }}>{saving ? 'Creating...' : 'Create Counselor'}</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const CounselorList = () => {
   const [counselors, setCounselors] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -163,6 +288,7 @@ const CounselorList = () => {
   const [selectedCounselor, setSelectedCounselor] = useState(null);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
@@ -223,6 +349,13 @@ const CounselorList = () => {
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button onClick={() => setIsCreateOpen(true)} style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            backgroundColor: '#064E3B', color: '#FFF', border: 'none',
+            padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.5rem', borderRadius: '12px',
+            fontWeight: '800', fontSize: isMobile ? '0.8rem' : '0.9rem', cursor: 'pointer',
+            whiteSpace: 'nowrap'
+          }}><UserPlus size={isMobile ? 16 : 18} /> Add Counselor</button>
           <div style={{ position: 'relative', flex: 1 }}>
             <div style={{ 
               display: 'flex', alignItems: 'center', 
@@ -349,6 +482,7 @@ const CounselorList = () => {
 
       <InfoModal isOpen={isInfoOpen} counselor={selectedCounselor} onClose={() => setIsInfoOpen(false)} />
       <DeleteModal isOpen={isDeleteOpen} counselor={selectedCounselor} onClose={() => setIsDeleteOpen(false)} onConfirm={handleDelete} />
+      <CreateCounselorModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} onCreated={loadCounselors} />
     </div>
   );
 };

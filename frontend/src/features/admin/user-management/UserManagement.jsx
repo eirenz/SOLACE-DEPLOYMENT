@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Trash2, Eye, UserPlus, MoreVertical, Users, ClipboardList, Info, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { Search, Filter, Trash2, Eye, UserPlus, MoreVertical, Users, ClipboardList, Info, AlertTriangle, ShieldCheck, ArrowUpCircle } from 'lucide-react';
 import apiClient from '../../../api/apiClient';
-import { updateUserStatus } from '../../../api/adminApi';
+import { updateUserStatus, promoteUserRole } from '../../../api/adminApi';
 import Avatar from '../../../components/common/Avatar';
 
 // Filter Modal Component
@@ -158,6 +158,64 @@ const SuspendModal = ({ isOpen, user, onClose, onConfirm }) => {
   );
 };
 
+// Promote to Counselor Modal
+const PromoteModal = ({ isOpen, user, onClose, onConfirm }) => {
+  if (!isOpen || !user) return null;
+  const displayName = user.fullName || user.alias || user.username || user.email || 'User';
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+      backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 2000, backdropFilter: 'blur(4px)'
+    }}>
+      <div style={{
+        backgroundColor: '#FFFFFF', borderRadius: '32px', width: '90%', maxWidth: '420px',
+        padding: '3rem', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', textAlign: 'center'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem', fontWeight: '800', fontSize: '1.4rem' }}>
+          <ArrowUpCircle size={24} color="#064E3B" />
+          <span>Promote to Counselor</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', marginBottom: '1.5rem' }}>
+          <Avatar size={70} initials={(displayName?.charAt(0) || '').toUpperCase()} />
+          <div style={{ textAlign: 'left' }}>
+            <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '800', color: '#1A1A2E' }}>{displayName}</h3>
+            <span style={{
+              display: 'inline-block', marginTop: '0.4rem',
+              padding: '0.2rem 0.75rem', borderRadius: '100px', fontSize: '0.7rem', fontWeight: '700',
+              backgroundColor: '#E3F2FD', color: '#1565C0'
+            }}>STUDENT</span>
+          </div>
+        </div>
+        <div style={{
+          backgroundColor: '#FFF8E1', border: '1.5px solid #FFE082', borderRadius: '16px',
+          padding: '1rem 1.25rem', marginBottom: '2rem', textAlign: 'left'
+        }}>
+          <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: '600', color: '#5D4037', lineHeight: 1.6 }}>
+            This will change this user's role from <strong>Student</strong> to <strong>Counselor</strong>. They will gain access to the Counselor dashboard, appointments, and vent messages.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '1.5rem' }}>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1, backgroundColor: '#BDBDBD', color: '#FFF', border: 'none',
+              padding: '0.8rem', borderRadius: '100px', fontWeight: '800', cursor: 'pointer'
+            }}
+          >Cancel</button>
+          <button
+            onClick={() => onConfirm(user)}
+            style={{
+              flex: 1, backgroundColor: '#064E3B', color: '#FFF', border: 'none',
+              padding: '0.8rem', borderRadius: '100px', fontWeight: '800', cursor: 'pointer'
+            }}
+          >Promote</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const UserManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL');
@@ -165,6 +223,7 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isSuspendOpen, setIsSuspendOpen] = useState(false);
+  const [isPromoteOpen, setIsPromoteOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -194,7 +253,6 @@ const UserManagement = () => {
 
   const handleSuspend = async (userToSuspend) => {
     try {
-      // Toggle between ACTIVE and SUSPENDED
       const newStatus = userToSuspend.status === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
       await updateUserStatus(userToSuspend.id, newStatus);
       setIsSuspendOpen(false);
@@ -202,6 +260,22 @@ const UserManagement = () => {
     } catch (error) {
       console.error('Failed to update user status:', error);
     }
+  };
+
+  const handlePromote = async (userToPromote) => {
+    try {
+      await promoteUserRole(userToPromote.id, 'COUNSELOR');
+      setIsPromoteOpen(false);
+      fetchUsers();
+    } catch (error) {
+      console.error('Failed to promote user:', error);
+      alert(error.response?.data?.error || 'Failed to promote user');
+    }
+  };
+
+  const openPromote = (user) => {
+    setSelectedUser(user);
+    setIsPromoteOpen(true);
   };
 
   const filteredUsers = users.filter((user) => {
@@ -379,6 +453,9 @@ const UserManagement = () => {
                       <button onClick={() => openSuspend(user)} style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: (user.status || '').toUpperCase() === 'SUSPENDED' ? '#4CAF50' : '#EF5350', display: 'flex' }}>
                         {(user.status || '').toUpperCase() === 'SUSPENDED' ? <ShieldCheck size={16} /> : <Trash2 size={16} />}
                       </button>
+                      {user.role === 'STUDENT' && (
+                        <button onClick={() => openPromote(user)} title="Promote to Counselor" style={{ background: 'none', border: '1.5px solid #E0E4E6', padding: '0.35rem', borderRadius: '8px', cursor: 'pointer', color: '#064E3B', display: 'flex' }}><ArrowUpCircle size={16} /></button>
+                      )}
                     </div>
                   </div>
                 );
@@ -424,6 +501,9 @@ const UserManagement = () => {
                             {(user.status || '').toUpperCase() === 'SUSPENDED' ? <ShieldCheck size={20} /> : <Trash2 size={20} />}
                           </button>
                           <button onClick={() => openInfo(user)} style={{ background: 'none', border: '2px solid #000', padding: '0.5rem', borderRadius: '10px', cursor: 'pointer', color: '#00BCD4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Eye size={20} /></button>
+                          {user.role === 'STUDENT' && (
+                            <button onClick={() => openPromote(user)} title="Promote to Counselor" style={{ background: 'none', border: '2px solid #064E3B', padding: '0.5rem', borderRadius: '10px', cursor: 'pointer', color: '#064E3B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ArrowUpCircle size={20} /></button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -437,6 +517,7 @@ const UserManagement = () => {
 
       <InfoModal isOpen={isInfoOpen} user={selectedUser} onClose={() => setIsInfoOpen(false)} />
       <SuspendModal isOpen={isSuspendOpen} user={selectedUser} onClose={() => setIsSuspendOpen(false)} onConfirm={handleSuspend} />
+      <PromoteModal isOpen={isPromoteOpen} user={selectedUser} onClose={() => setIsPromoteOpen(false)} onConfirm={handlePromote} />
     </div>
   );
 };

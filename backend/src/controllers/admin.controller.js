@@ -536,19 +536,24 @@ const getDashboardStats = async (req, res) => {
     const highPriority = [];
     for (const student of students) {
       if (student.moodCheckins.length === 0) continue;
+      
+      const checkins = student.moodCheckins;
+      const avgScore = checkins.reduce((sum, c) => sum + (MOOD_SCORES[c.mood] || 3), 0) / checkins.length;
+      
       let streak = 0;
-      for (const c of student.moodCheckins) {
+      for (const c of checkins) {
         if (NEGATIVE_MOODS.has(c.mood)) streak++;
         else break;
       }
-      if (streak >= 3) {
+      
+      if (avgScore <= 2.5 || streak >= 3) {
         highPriority.push({
           id: student.id,
           fullName: student.fullName,
           alias: student.alias,
           avatarUrl: student.avatarUrl,
           streak: `${streak} days`,
-          latestMood: student.moodCheckins[0]?.mood || null,
+          latestMood: checkins[0]?.mood || null,
         });
       }
     }

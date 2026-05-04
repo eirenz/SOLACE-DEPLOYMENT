@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import { ArrowLeft } from 'lucide-react';
@@ -27,6 +27,29 @@ const VerificationCode = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [timeLeft, setTimeLeft] = useState(30);
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const timerId = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(timerId);
+  }, [timeLeft]);
+
+  const handleResend = async () => {
+    if (timeLeft > 0 || !email) return;
+    setIsLoading(true);
+    setError('');
+    try {
+      await apiClient.post('/auth/forgot-password', { email });
+      setTimeLeft(30);
+    } catch (err) {
+      setError('Failed to resend code. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -87,7 +110,16 @@ const VerificationCode = () => {
           </Button>
         </form>
         <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-          Resend code in 00:30
+          {timeLeft > 0 ? (
+            `Resend code in 00:${timeLeft.toString().padStart(2, '0')}`
+          ) : (
+            <span 
+              onClick={handleResend}
+              style={{ color: 'var(--primary)', cursor: isLoading ? 'not-allowed' : 'pointer', fontWeight: 'bold' }}
+            >
+              {isLoading ? 'Sending...' : 'Resend Code'}
+            </span>
+          )}
         </div>
       </div>
     </div>

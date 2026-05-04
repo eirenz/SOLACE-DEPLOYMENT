@@ -24,6 +24,9 @@ const notificationRoutes = require('./routes/notification.routes');
 
 const app = express();
 
+// Trust the Render proxy for rate limiting to work correctly
+app.set('trust proxy', 1);
+
 // --- Global Middleware ---
 app.use(helmet());
 app.use(cors({

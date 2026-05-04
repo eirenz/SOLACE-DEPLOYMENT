@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
@@ -12,8 +12,9 @@ const CreatePassword = () => {
   const [confirm, setConfirm] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const email = window.history.state?.usr?.email || '';
-  const code = window.history.state?.usr?.code || '';
+  const location = useLocation();
+  const email = location.state?.email || '';
+  const code = location.state?.code || '';
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');

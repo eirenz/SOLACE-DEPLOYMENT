@@ -4,6 +4,7 @@ const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = requir
 const { generateAlias } = require('../utils/aliasGenerator');
 const { OAuth2Client } = require('google-auth-library');
 const axios = require('axios');
+const nodemailer = require('nodemailer');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -266,9 +267,46 @@ const forgotPassword = async (req, res, next) => {
       },
     });
 
-    // In production, send OTP via email (nodemailer)
-    // For development, log it
-    console.log(`🔑 Password reset OTP for ${email}: ${otp}`);
+    if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_PASS,
+          },
+        });
+
+        const mailOptions = {
+          from: `"Solace Support" <${process.env.GMAIL_USER}>`,
+          to: email,
+          subject: 'Your Password Reset Code',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #E0E0E0; border-radius: 12px;">
+              <h2 style="color: #00BCD4; text-align: center;">Solace Password Reset</h2>
+              <p>Hi there,</p>
+              <p>We received a request to reset your password. Here is your 6-digit verification code:</p>
+              <div style="background-color: #F8FAFB; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #1A1A2E; border-radius: 8px; margin: 20px 0;">
+                ${otp}
+              </div>
+              <p style="color: #666666; font-size: 14px;">This code will expire in 10 minutes. If you did not request this, you can safely ignore this email.</p>
+              <hr style="border: none; border-top: 1px solid #EEEEEE; margin: 20px 0;" />
+              <p style="color: #999999; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} Project Solace</p>
+            </div>
+          `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`✉️ Password reset email sent to ${email}`);
+      } catch (mailError) {
+        console.error('Failed to send OTP email:', mailError);
+        // Fallback to console log
+        console.log(`🔑 Password reset OTP for ${email}: ${otp} (Email failed)`);
+      }
+    } else {
+      // For development, log it
+      console.log(`🔑 Password reset OTP for ${email}: ${otp} (No GMAIL credentials)`);
+    }
 
     res.json({ message: 'If an account with that email exists, a verification code has been sent.' });
   } catch (error) {

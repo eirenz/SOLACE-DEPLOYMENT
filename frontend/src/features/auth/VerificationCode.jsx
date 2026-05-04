@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import { ArrowLeft } from 'lucide-react';
 import apiClient from '../../api/apiClient';
 
 const VerificationCode = () => {
   const navigate = useNavigate();
-  const [code, setCode] = useState(['', '', '', '']);
+  const [code, setCode] = useState(['', '', '', '', '', '']);
   const inputs = useRef([]);
 
   const handleChange = (e, index) => {
@@ -17,14 +17,13 @@ const VerificationCode = () => {
     newCode[index] = val;
     setCode(newCode);
 
-    if (val !== '' && index < 3) {
+    if (val !== '' && index < 5) {
       inputs.current[index + 1].focus();
     }
   };
 
-  const location = Object.assign({}, window.location);
-  // Optional: you can grab `email` from location state in react-router logic
-  const email = window.history.state?.usr?.email || '';
+  const location = useLocation();
+  const email = location.state?.email || '';
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -56,7 +55,7 @@ const VerificationCode = () => {
         
         <h1 className="heading-decorative" style={{ color: 'var(--primary-dark)', marginBottom: '1rem', marginTop: '2.5rem', textAlign: 'center', fontSize: '1.5rem' }}>Verification Code</h1>
         <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.875rem' }}>
-          We have sent a 4-digit code to your email.
+          We have sent a 6-digit code to your email.
         </p>
 
         {error && (
@@ -77,7 +76,7 @@ const VerificationCode = () => {
                 ref={el => inputs.current[i] = el}
                 disabled={isLoading}
                 style={{
-                  width: '50px', height: '60px', fontSize: '1.5rem', textAlign: 'center',
+                  width: '40px', height: '50px', fontSize: '1.2rem', textAlign: 'center',
                   borderRadius: 'var(--radius-input)', border: '1px solid #E0E0E0', outline: 'none'
                 }}
               />

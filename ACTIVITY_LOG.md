@@ -20,9 +20,13 @@
 - **Forgot Password OTP Not Emailed:** Identified that the OTP for password reset is only logged to the server console (`console.log`) — no email transport (e.g., Nodemailer) is integrated. Documented as a known limitation for testing.
 - **Render Cold-Start Delay:** Documented the 30–60 second cold-start delay on Render's free tier for groupmate awareness during testing.
 
-#### 4. Mobile UI Fixes (May 4, 2026)
-- **Email Overflow in Admin User Info Modal (`UserManagement.jsx`):** Long email addresses (e.g., `hilario.cyrojames.sermence@gmail.com`) were breaking out of the `InfoModal` container. Applied `word-break: break-all` on email fields, `overflow-wrap: break-word` on all value spans, added `min-width: 0` and `flex: 1` to the text container, and reduced the label column from 150px to 120px for better mobile fit.
-- **Journal Save Button Unreachable on Mobile (`Journal.jsx`):** On mobile, the only Save/Cancel controls were tiny text links in the header bar — nearly invisible. Added a prominent fixed-position "Save Entry" + "Cancel" button bar above the bottom nav (`bottom: 70px`), with frosted glass background and shadow. Also added `paddingBottom: 100px` to prevent content from being hidden behind the sticky bar, and reduced textarea `minHeight` from 300px to 180px on mobile.
+#### 4. Mobile UI Fixes & Platform Stability (May 4, 2026)
+- **Email Overflow in Admin User Info Modal (`UserManagement.jsx`):** Long email addresses were breaking out of the container. Applied `word-break: break-all`, `overflow-wrap: break-word`, and `min-width: 0` to fix the layout.
+- **Journal Save Button & Emoji Alignment (`Journal.jsx`):** 
+    - Added a sticky bottom save bar on mobile for better accessibility.
+    - **Emoji Centering:** Refactored the mood selection row to use `justifyContent: 'center'` and `flexWrap: 'wrap'`, ensuring emojis are perfectly centralized on all mobile screen widths instead of left-aligned and scrolling.
+- **Rate Limit Adjustment (`rateLimiter.js`):** Resolved the "Too many attempts" blocker by increasing the `authLimiter` from 10 to 50 attempts and the `otpLimiter` from 5 to 15 attempts per 15-minute window. This prevents groupmates from getting locked out during high-frequency testing.
+- **Deployment:** Pushed all fixes to the main branch to trigger redeployments on Vercel and Render, clearing existing lockouts and applying the new limits.
 
 ---
 

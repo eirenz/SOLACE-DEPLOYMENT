@@ -36,8 +36,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // --- Health Check ---
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`; // Keep Neon DB awake
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  } catch (err) {
+    res.status(500).json({ status: 'degraded', error: 'Database unreachable', timestamp: new Date().toISOString() });
+  }
 });
 
 // --- API Routes ---

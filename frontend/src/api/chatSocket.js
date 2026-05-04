@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import useAuthStore from '../store/useAuthStore';
 
 const SOCKET_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000';
 
@@ -27,6 +28,14 @@ export const connectSocket = (token) => {
     });
     socket.on('connect_error', (err) => {
       console.error('Socket connection error:', err.message);
+      if (err.message.includes('expired') || err.message.includes('Authentication') || err.message.includes('jwt')) {
+        const freshToken = useAuthStore.getState().token;
+        if (freshToken) {
+          console.log('🔄 Attempting socket reconnect with fresh token...');
+          socket.auth = { token: freshToken };
+          socket.connect();
+        }
+      }
     });
   }
   return socket;

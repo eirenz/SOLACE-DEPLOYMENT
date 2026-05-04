@@ -273,16 +273,34 @@ const forgotPassword = async (req, res, next) => {
       },
     });
 
+    console.log(`📧 Attempting to send OTP to: ${email}`);
+    console.log(`🔧 GMAIL_USER defined: ${!!process.env.GMAIL_USER}`);
+    console.log(`🔧 GMAIL_PASS length: ${process.env.GMAIL_PASS?.length || 0}`);
+
     if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
       try {
         const transporter = nodemailer.createTransport({
-          service: 'gmail',
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false, // TLS
           auth: {
             user: process.env.GMAIL_USER,
             pass: process.env.GMAIL_PASS,
           },
-          debug: true, // Show SMTP traffic in logs
-          logger: true // Log information to console
+          debug: true,
+          logger: true,
+          connectionTimeout: 10000, // 10s
+          greetingTimeout: 10000,
+          socketTimeout: 10000,
+        });
+
+        // Verify connection configuration
+        transporter.verify(function (error, success) {
+          if (error) {
+            console.error('❌ SMTP Verification Error:', error);
+          } else {
+            console.log('✅ SMTP Server is ready to take our messages');
+          }
         });
 
         const mailOptions = {

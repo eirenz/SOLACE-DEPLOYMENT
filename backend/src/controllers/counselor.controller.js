@@ -72,6 +72,12 @@ const updateAppointmentStatus = async (req, res) => {
     // Create persistent notification for student
     const statusLabel = status === 'CONFIRMED' ? 'Confirmed' : status === 'CANCELLED' ? 'Cancelled' : status;
     let notifMessage = `Your appointment with ${req.user.fullName} has been ${statusLabel.toLowerCase()}.`;
+    
+    if (status === 'CONFIRMED') {
+      const formattedDate = new Date(appointment.date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+      notifMessage = `Your appointment has been confirmed!\n\nBooking Details:\nDate: ${formattedDate}\nTime: ${appointment.timeSlot}\nCounselor: ${req.user.fullName}\n\nReminder: Please be on time for your session. Counselor ${req.user.fullName} will be accompanying you.`;
+    }
+    
     if (message) {
       notifMessage += `\n\nCounselor's Note:\n${message}`;
     }

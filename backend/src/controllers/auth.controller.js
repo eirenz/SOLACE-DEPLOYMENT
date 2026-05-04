@@ -5,10 +5,7 @@ const { generateAlias } = require('../utils/aliasGenerator');
 const { OAuth2Client } = require('google-auth-library');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
-const dns = require('dns');
-
-// Force IPv4 to prevent Render ENETUNREACH errors with Gmail's IPv6
-dns.setDefaultResultOrder('ipv4first');
+const dnsPromises = require('dns').promises;
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -273,12 +270,22 @@ const forgotPassword = async (req, res, next) => {
 
     if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
       try {
+        // Manually resolve Gmail's IPv4 address to completely bypass Render's IPv6 bugs
+        const addresses = await dnsPromises.resolve4('smtp.gmail.com');
+        const ipv4Address = addresses[0];
+
         const transporter = nodemailer.createTransport({
-          service: 'gmail',
+          host: ipv4Address,
+          port: 465,
+          secure: true,
           auth: {
             user: process.env.GMAIL_USER,
             pass: process.env.GMAIL_PASS,
           },
+          tls: {
+            servername: 'smtp.gmail.com', // Required when connecting via IP address
+            rejectUnauthorized: false
+          }
         });
 
         const mailOptions = {

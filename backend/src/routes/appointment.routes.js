@@ -3,7 +3,7 @@ const router = express.Router();
 const { authenticate } = require('../middleware/auth');
 const { roleGuard } = require('../middleware/roleGuard');
 const { validate } = require('../middleware/validate');
-const { createAppointmentSchema, submitVentSchema } = require('../validators/appointment.validators');
+const { createAppointmentSchema, createVentSchema } = require('../validators/appointment.validators');
 const {
   getCounselors,
   getAvailableSlots,
@@ -21,7 +21,7 @@ router.post('/', authenticate, roleGuard('STUDENT'), validate(createAppointmentS
 router.get('/my', authenticate, roleGuard('STUDENT'), getMyAppointments);
 
 // Venting routes (student only)
-router.post('/venting', authenticate, roleGuard('STUDENT'), validate(submitVentSchema), submitVent);
+router.post('/venting', authenticate, roleGuard('STUDENT'), validate(createVentSchema), submitVent);
 router.get('/venting/my', authenticate, roleGuard('STUDENT'), getMyVents);
 
 module.exports = router;

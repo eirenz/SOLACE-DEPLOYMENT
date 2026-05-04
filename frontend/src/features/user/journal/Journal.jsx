@@ -301,7 +301,7 @@ const Journal = () => {
               </button>
             </div>
           ) : isEditing ? (
-            <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+            <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto', paddingBottom: isMobile ? '100px' : '0' }}>
               <div style={{ marginBottom: '2rem' }}>
                 <p style={{ fontSize: '0.8rem', fontWeight: '800', color: '#9CA3AF', marginBottom: '0.5rem' }}>
                   {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()}
@@ -315,7 +315,7 @@ const Journal = () => {
 
               <div style={{ marginBottom: '2rem' }}>
                 <p style={{ fontSize: '0.65rem', fontWeight: '800', color: '#2d6465', marginBottom: '1rem', letterSpacing: '0.05em' }}>HOW ARE YOU FEELING?</p>
-                <div style={{ display: 'flex', gap: isMobile ? '0.75rem' : '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: isMobile ? '0.75rem' : '1.5rem', flexWrap: 'wrap', justifyContent: 'center', paddingBottom: '0.5rem' }}>
                   {Object.entries(MOOD_DATA).map(([id, data]) => (
                     <button key={id} onClick={() => setEditMood(id)} style={{ 
                       flexShrink: 0,
@@ -338,10 +338,35 @@ const Journal = () => {
                 style={{ 
                   width: '100%', border: 'none', outline: 'none', 
                   fontSize: '1.1rem', lineHeight: 1.8, color: '#404848', 
-                  resize: 'none', minHeight: '300px' 
+                  resize: 'none', minHeight: isMobile ? '180px' : '300px'
                 }}
               />
               
+              {/* Mobile: Sticky bottom save button */}
+              {isMobile && (
+                <div style={{ 
+                  position: 'fixed', bottom: '70px', left: 0, right: 0,
+                  padding: '0.75rem 1.25rem', 
+                  backgroundColor: 'rgba(255,255,255,0.95)',
+                  backdropFilter: 'blur(10px)',
+                  borderTop: '1px solid #edeeed',
+                  display: 'flex', gap: '0.75rem',
+                  zIndex: 50
+                }}>
+                  <button onClick={() => { setIsEditing(false); setMobileView('list'); }} style={{ 
+                    flex: 1, padding: '0.85rem', borderRadius: '14px', 
+                    border: '1.5px solid #edeeed', backgroundColor: '#FFFFFF', 
+                    fontWeight: '800', cursor: 'pointer', fontSize: '0.95rem', color: '#6B7280'
+                  }}>Cancel</button>
+                  <button onClick={handleSave} style={{ 
+                    flex: 2, padding: '0.85rem', borderRadius: '14px', 
+                    border: 'none', backgroundColor: '#2d6465', color: '#FFFFFF', 
+                    fontWeight: '800', cursor: 'pointer', fontSize: '0.95rem',
+                    boxShadow: '0 4px 15px rgba(45, 100, 101, 0.3)'
+                  }}>Save Entry</button>
+                </div>
+              )}
+
               {!isMobile && (
                 <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
                   <button onClick={() => setIsEditing(false)} style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', border: '1px solid #edeeed', backgroundColor: '#FFFFFF', fontWeight: '800', cursor: 'pointer' }}>Cancel</button>

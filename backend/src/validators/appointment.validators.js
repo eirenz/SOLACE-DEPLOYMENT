@@ -19,6 +19,7 @@ const createAppointmentSchema = z.object({
     errorMap: () => ({ message: 'Invalid time slot. Please select a valid appointment time.' }),
   }),
   mode: z.enum(['LISTEN_ONLY', 'ADVICE_RECOVERY']).optional(),
+  notes: z.string().max(2000, 'Notes must be 2,000 characters or less').optional().nullable(),
 });
 
 const createVentSchema = z.object({

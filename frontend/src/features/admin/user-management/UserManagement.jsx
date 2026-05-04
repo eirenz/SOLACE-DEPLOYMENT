@@ -65,25 +65,25 @@ const InfoModal = ({ isOpen, user, onClose }) => {
           }}>{displayStatus}</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2.5rem', minWidth: 0 }}>
           <Avatar size={100} initials={(displayName?.charAt(0) || '').toUpperCase()} />
-          <div>
-            <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1A1A2E' }}>{displayName}</h2>
-            <p style={{ margin: 0, color: '#8E9DA1', fontWeight: '600' }}>{user.username ? `@${user.username}` : user.email}</p>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', color: '#1A1A2E', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{displayName}</h2>
+            <p style={{ margin: 0, color: '#8E9DA1', fontWeight: '600', overflowWrap: 'break-word', wordBreak: 'break-all' }}>{user.username ? `@${user.username}` : user.email}</p>
           </div>
         </div>
 
         <div style={{ borderTop: '1.5px solid #F0F4F5', paddingTop: '2rem' }}>
           <h4 style={{ margin: '0 0 1.25rem 0', fontSize: '1.1rem', fontWeight: '800', color: '#1A1A2E' }}>Personal Information</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '1rem', fontSize: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '1rem', fontSize: '1rem', minWidth: 0 }}>
             <span style={{ color: '#000', fontWeight: '700' }}>Full Name:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{user.fullName || '-'}</span>
+            <span style={{ color: '#555', fontWeight: '500', overflowWrap: 'break-word', wordBreak: 'break-word', minWidth: 0 }}>{user.fullName || '-'}</span>
             <span style={{ color: '#000', fontWeight: '700' }}>Username:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{user.username || '-'}</span>
+            <span style={{ color: '#555', fontWeight: '500', overflowWrap: 'break-word', wordBreak: 'break-word', minWidth: 0 }}>{user.username || '-'}</span>
             <span style={{ color: '#000', fontWeight: '700' }}>Email:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{user.email || '-'}</span>
+            <span style={{ color: '#555', fontWeight: '500', overflowWrap: 'break-word', wordBreak: 'break-all', minWidth: 0 }}>{user.email || '-'}</span>
             <span style={{ color: '#000', fontWeight: '700' }}>Phone Number:</span>
-            <span style={{ color: '#555', fontWeight: '500' }}>{user.phoneNumber || '-'}</span>
+            <span style={{ color: '#555', fontWeight: '500', overflowWrap: 'break-word', wordBreak: 'break-word', minWidth: 0 }}>{user.phoneNumber || '-'}</span>
           </div>
         </div>
 

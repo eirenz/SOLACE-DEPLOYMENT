@@ -8,19 +8,19 @@ const rateLimit = require('express-rate-limit');
  * swap to a Redis-backed store.
  */
 
-// General auth limiter: 10 attempts per 15-minute window
+// General auth limiter: 50 attempts per 15-minute window
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,
+  max: 50,
   message: { error: 'Too many attempts. Please try again after 15 minutes.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Strict limiter for OTP verification: 5 attempts per 15-minute window
+// Strict limiter for OTP verification: 15 attempts per 15-minute window
 const otpLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  max: 15,
   message: { error: 'Too many verification attempts. Please try again after 15 minutes.' },
   standardHeaders: true,
   legacyHeaders: false,

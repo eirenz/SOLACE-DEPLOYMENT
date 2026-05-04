@@ -296,12 +296,15 @@ const forgotPassword = async (req, res, next) => {
           `,
         };
 
-        await transporter.sendMail(mailOptions);
-        console.log(`✉️ Password reset email sent to ${email}`);
-      } catch (mailError) {
-        console.error('Failed to send OTP email:', mailError);
-        // Fallback to console log
-        console.log(`🔑 Password reset OTP for ${email}: ${otp} (Email failed)`);
+        transporter.sendMail(mailOptions)
+          .then(() => console.log(`✉️ Password reset email sent to ${email}`))
+          .catch((mailError) => {
+            console.error('Failed to send OTP email:', mailError);
+            console.log(`🔑 Password reset OTP for ${email}: ${otp} (Email failed)`);
+          });
+      } catch (setupError) {
+        console.error('Failed to setup nodemailer:', setupError);
+        console.log(`🔑 Password reset OTP for ${email}: ${otp} (Email setup failed)`);
       }
     } else {
       // For development, log it

@@ -5,6 +5,10 @@ const { generateAlias } = require('../utils/aliasGenerator');
 const { OAuth2Client } = require('google-auth-library');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// Force IPv4 to prevent Render ENETUNREACH errors with Gmail's IPv6
+dns.setDefaultResultOrder('ipv4first');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 

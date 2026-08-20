@@ -1,16 +1,25 @@
-// Using native fetch
+// Usage: TEST_EMAIL=student@solace.com TEST_PASSWORD=yourpass node test_features.js
 
 const API_URL = 'http://localhost:5000/api';
 
 async function testFeatures() {
+  const email = process.env.TEST_EMAIL;
+  const password = process.env.TEST_PASSWORD;
+
+  if (!email || !password) {
+    console.error('❌ Missing required environment variables.');
+    console.error('   Usage: TEST_EMAIL=user@solace.com TEST_PASSWORD=yourpass node test_features.js');
+    process.exit(1);
+  }
+
   console.log('--- Testing Phase 3 Features ---');
 
   // 1. Login to get token
-  console.log('\n[1] Logging in as student...');
+  console.log('\n[1] Logging in...');
   const loginRes = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: 'student@solace.com', password: 'student123' }),
+    body: JSON.stringify({ email, password }),
   });
   
   if (!loginRes.ok) {

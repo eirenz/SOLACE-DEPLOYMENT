@@ -1,13 +1,24 @@
+// Usage: TEST_EMAIL=testcheckin@solace.com TEST_PASSWORD=yourpass node test_growth_api.js
+
 const axios = require('axios');
 
 async function testGrowthAPI() {
   const API_URL = 'http://localhost:5000/api';
-  
+
+  const email = process.env.TEST_EMAIL;
+  const password = process.env.TEST_PASSWORD;
+
+  if (!email || !password) {
+    console.error('❌ Missing required environment variables.');
+    console.error('   Usage: TEST_EMAIL=user@solace.com TEST_PASSWORD=yourpass node test_growth_api.js');
+    process.exit(1);
+  }
+
   try {
     // 1. Login
     const loginRes = await axios.post(`${API_URL}/auth/login`, {
-      email: 'testcheckin@solace.com',
-      password: 'newpassword123'
+      email,
+      password
     });
     const token = loginRes.data.token;
     console.log('Logged in successfully');

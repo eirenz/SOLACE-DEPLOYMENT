@@ -24,7 +24,7 @@ const Login = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '219508067153-l1hi9p3psonc5llundrvi02dc79d93i6.apps.googleusercontent.com';
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
   const handleLogin = async (e) => {
     e.preventDefault();

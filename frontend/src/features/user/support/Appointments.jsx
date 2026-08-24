@@ -607,7 +607,7 @@ const Appointments = () => {
           </div>
         )}
         {messages.map((msg, i) => {
-          const isMe = msg.sender?.role === 'STUDENT' || msg.sender?.id === user?.id;
+          const isMe = msg.senderId === user?.id || msg.sender?.id === user?.id;
           return (
             <div key={msg.id || i} style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: '75%', opacity: msg.isTemp ? 0.7 : 1 }}>
               <div style={{ backgroundColor: isMe ? '#064E3B' : '#FFFFFF', padding: '1.5rem 2rem', borderRadius: isMe ? '24px 24px 4px 24px' : '24px 24px 24px 4px', boxShadow: isMe ? '0 15px 35px rgba(6,78,59,0.15)' : '0 10px 30px rgba(0,0,0,0.03)', color: isMe ? '#FFFFFF' : '#111827', display: 'flex', flexDirection: 'column' }}>

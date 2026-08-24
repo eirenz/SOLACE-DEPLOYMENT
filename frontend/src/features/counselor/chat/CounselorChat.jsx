@@ -301,7 +301,7 @@ const CounselorChat = () => {
                   <div style={{ textAlign: 'center', color: '#8E9DA1', fontWeight: '600', padding: '2rem' }}>Start the conversation...</div>
                 ) : (
                   messages.map((msg, i) => {
-                    const isMe = msg.sender?.id === user?.id;
+                    const isMe = msg.senderId === user?.id || msg.sender?.id === user?.id;
                     return (
                       <div key={msg.id || i} style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: '70%' }}>
                         <div style={{

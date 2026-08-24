@@ -21,10 +21,11 @@ async function main() {
   const studentPwd = process.env.SEED_STUDENT_PASSWORD || generatePassword();
 
   // Create Admin user
+  // update: always applies the password from env so re-running seed is safe
   const adminPassword = await bcrypt.hash(adminPwd, 12);
   const admin = await prisma.user.upsert({
     where: { email: 'admin@solace.com' },
-    update: {},
+    update: { passwordHash: adminPassword },
     create: {
       fullName: 'System Admin',
       email: 'admin@solace.com',
@@ -33,13 +34,14 @@ async function main() {
       status: 'ACTIVE',
     },
   });
-  console.log(`✅ Admin user created: ${admin.email}`);
+  console.log(`✅ Admin user upserted: ${admin.email}`);
 
   // Create a demo counselor
+  // update: always applies the password from env so re-running seed is safe
   const counselorPassword = await bcrypt.hash(counselorPwd, 12);
   const counselor = await prisma.user.upsert({
     where: { email: 'counselor@solace.com' },
-    update: {},
+    update: { passwordHash: counselorPassword },
     create: {
       fullName: 'Hanna Gweneth',
       email: 'counselor@solace.com',
@@ -63,9 +65,9 @@ async function main() {
       experience: '6 years',
     },
   });
-  console.log(`✅ Counselor created: ${counselor.email}`);
+  console.log(`✅ Counselor upserted: ${counselor.email}`);
 
-  // Create a demo student
+  // Create a demo student (password only set on first creation)
   const studentPassword = await bcrypt.hash(studentPwd, 12);
   const student = await prisma.user.upsert({
     where: { email: 'student@solace.com' },
@@ -81,11 +83,22 @@ async function main() {
   });
   console.log(`✅ Student created: ${student.email}`);
 
-  console.log('\n🎉 Seeding complete! Demo accounts:');
-  console.log(`   Admin:     admin@solace.com / ${adminPwd}`);
-  console.log(`   Counselor: counselor@solace.com / ${counselorPwd}`);
-  console.log(`   Student:   student@solace.com / ${studentPwd}`);
-  console.log('\n⚠️  Save these credentials now — they will not be shown again.');
+  console.log('\n🎉 Seeding complete!');
+
+  // Only print passwords in output if they were NOT supplied via env vars
+  // (i.e. they were auto-generated and you need to save them)
+  const adminFromEnv = !!process.env.SEED_ADMIN_PASSWORD;
+  const counselorFromEnv = !!process.env.SEED_COUNSELOR_PASSWORD;
+  const studentFromEnv = !!process.env.SEED_STUDENT_PASSWORD;
+
+  if (!adminFromEnv || !counselorFromEnv || !studentFromEnv) {
+    console.log('\n⚠️  Auto-generated passwords (save these now — not shown again):');
+    if (!adminFromEnv)     console.log(`   Admin:     admin@solace.com     / ${adminPwd}`);
+    if (!counselorFromEnv) console.log(`   Counselor: counselor@solace.com / ${counselorPwd}`);
+    if (!studentFromEnv)   console.log(`   Student:   student@solace.com   / ${studentPwd}`);
+  } else {
+    console.log('   All passwords were sourced from environment variables. ✅');
+  }
 }
 
 main()
